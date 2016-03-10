@@ -1,8 +1,7 @@
 /**
  * Directive: Search <search></search>
  */
-angular.module('QueueApp')
-  .directive('search', function SearchbarDrctv () {
+ function SearchbarDrctv () {
     'use strict';
 
     return {
@@ -34,4 +33,8 @@ angular.module('QueueApp')
         
       }
     }
-  });
+  }
+ 
+ 
+angular.module('QueueApp')
+.directive('search', SearchBarDrctv);

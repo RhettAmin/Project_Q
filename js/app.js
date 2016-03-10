@@ -1,7 +1,5 @@
-angular.module('QueueApp', [
-  'ngRoute',
-  'ngSanitize'
-]).config(function ( $routeProvider ) {
+
+function router($routeProvider) {
 
 	'use strict';
 	
@@ -19,8 +17,16 @@ angular.module('QueueApp', [
     .otherwise({
       redirectTo: '/main'
     });
-}).run(function($rootScope){
-  $rootScope.$on('$routeChangeError', function(event, current, previous, rejection){
-    console.log(event, current, previous, rejection)
-  })
-});
+}
+
+function rootScope ($rootScope) {
+	$rootScope
+	.$on('$routeChangeError', function (event, current, previous, rejection) {
+		console.log(event, current, previous, rejection)
+  });
+}
+
+
+angular.module('QueueApp', ['ngRoute','ngSanitize'])
+.config(router)
+.run(rootScope);
