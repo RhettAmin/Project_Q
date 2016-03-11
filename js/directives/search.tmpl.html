@@ -1,30 +1,4 @@
-<div class="search">
-
-  <div class="search-bar">
-    <div class="result__count">
-      There are {{ search.results.length && search.results.length || 'no' }} results
-    </div>
-    <div ng-hide="!search.results.length">
-      <input type="text" class="search__search" 
-        ng-model="search.search" placeholder="Search for song">
-    </div>
-
-  </div>
-  <ul class="search__list">
-    <li ng-show="!search.results.length" class="no-results">
-      No results! Try another search.
-    </li>
-    <li ng-repeat="result in search.results">
-      <div class="result__list-info">
-        <p class="result__list-title"> Title: {{ result.title }} </p>
-        <p class="result__list-date"> {{ result.date | date: 'dd/MM/yyyy' }} </p>
-        <p class="result__list-views"> {{ result.views }} </p>
-      </div>
-      <div class="result__list-actions">
-        <a href="" ng-click="search.pickSong(result.id);">
-          Pick song
-        </a>
-      </div>
-    </li>
-  </ul>
-</div>
+<form id="search" data-ng-submit="search()">
+	<input id="query" name="q" type="text" placeholder="Search for a YouTube video" data-ng-model="query">
+	<input id="submit" type="image" src="images/search.png" alt="Search">
+</form>

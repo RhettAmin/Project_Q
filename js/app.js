@@ -1,7 +1,5 @@
 
 function router($routeProvider) {
-
-	'use strict';
 	
 	$routeProvider
     .when('/main', {
@@ -27,6 +25,7 @@ function rootScope ($rootScope) {
 }
 
 
-angular.module('QueueApp', ['ngRoute','ngSanitize'])
+// Create module
+angular.module('QueueApp', ['ngRoute'])
 .config(router)
 .run(rootScope);

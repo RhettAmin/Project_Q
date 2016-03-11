@@ -4,7 +4,14 @@
 -->
 
 <div>
-{{ main.title }}
+<h1>{{ main.title }}</h1>
 
-<p> <search-bar></search-bar> </p>
+<search></search>
+
+<ul>
+	<li ng-repeat="item in main.results">
+		{{item}}
+	</li>
+</li>
+
 </div>

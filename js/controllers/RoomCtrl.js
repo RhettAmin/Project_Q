@@ -2,7 +2,6 @@
  * Controller: RoomCtrl
  */
 function RoomCtrl() {
-	'use strict';
 	this.title = "Test Room";
 }
  

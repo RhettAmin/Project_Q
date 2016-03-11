@@ -1,28 +1,12 @@
 /**
- * Directive: Search <search-bar></search-bar>
+ * Directive: Search <search></search>
  */
- function searchBar () {
-    'use strict';
+function search() {
+	return {
+		restrict: 'E',
+		templateUrl: "js/directives/search.tmpl.html"
+	};
+}
 
-    return {
-      restrict: 'EA',
-      replace: true,
-      scope: true,
-      templateUrl: "js/directives/search.tmpl.html",
-      controllerAs: 'search',
-
-      controller: function () {
-        
-		this.songName = "Test song name";
-		
-      },
-
-      link: function (scope, element, attrs, ctrl) {
-        
-      }
-    }
-  }
- 
- 
 angular.module('QueueApp')
-.controller('search', searchBar);
+.directive('search', search);
