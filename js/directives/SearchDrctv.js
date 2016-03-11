@@ -1,7 +1,7 @@
 /**
- * Directive: Search <search></search>
+ * Directive: Search <search-bar></search-bar>
  */
- function SearchbarDrctv () {
+ function searchBar () {
     'use strict';
 
     return {
@@ -11,22 +11,10 @@
       templateUrl: "js/directives/search.tmpl.html",
       controllerAs: 'search',
 
-      controller: function (SearchFactory) {
-        this.results = [];
-		
-		this.pickSong = function (id) {
-			SearchFactory.pickSong(id);
-		};
-		
-        this.searchSong = function (query) {
-          SearchFactory.searchSong(query);
-        };
+      controller: function () {
         
-        SearchFactory.getResults()
-          .then( angular.bind( this, function then() {
-              this.results = SearchFactory.results;
-            }) );
-
+		this.songName = "Test song name";
+		
       },
 
       link: function (scope, element, attrs, ctrl) {
@@ -37,4 +25,4 @@
  
  
 angular.module('QueueApp')
-.directive('search', SearchBarDrctv);
+.controller('search', searchBar);
