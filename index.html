@@ -3,6 +3,9 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Queue It Up!</title>
+		<link rel="stylesheet" type="text/css" href="fonts/coolvetica.css">
+		<link rel="stylesheet" type="text/css" href="fonts/hack.css">
+		<link rel="stylesheet" type="text/css" href="css/site.css">
 	</head>
 	<body>
 		
@@ -13,11 +16,17 @@
 				<input id="submit" type="image" src="images/search.png" alt="Search">
 			</form>
 		
-		<ul>
-			<li ng-repeat="item in results">
-				{{item}}
-			</li>
-		</li>
+		<div id="search_results">
+			<div class="result_box" ng-repeat="item in results">
+				<a href="#">
+					<img class="result_img" src="{{item.thumbnail}}" align="top"/>
+					<span class="result_text">
+						<span class="result_title">{{item.title}}</span><br/>
+						<span class="result_id">{{item.id}}</span>
+					</span>
+				</a>
+			</div>
+		</div>
 		
 		</div>		
 

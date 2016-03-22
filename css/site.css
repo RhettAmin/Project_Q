@@ -1,0 +1,40 @@
+body {	
+    background-image: url("../images/swirl_pattern.png");
+    background-repeat: repeat-xy;
+	font-family: Coolvetica, Tahoma, serif;
+}
+
+#search_results {
+	font-family: Hack, Tahoma, serif;
+	font-size: 11px;
+}
+
+.result_box {
+	border-style: solid;
+	border-color: #bbb;
+	background-image: url("../images/small_steps.png");
+    background-repeat: repeat-xy;
+	width: 350px;
+	height: 100px;
+	padding: 5px;
+	position: relative;
+}
+
+.result_box .result_img {
+	position: absolute;
+}
+
+.result_box .result_text {
+	margin-left: 125px;
+	display: block;
+}
+
+.result_box a {
+	text-decoration: none;
+}
+
+.result_box .result_text .result_title {
+	color: #000;
+	font-weight: bold;
+	
+}
