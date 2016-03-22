@@ -20,4 +20,9 @@ app.controller('YouTubeController', function ($scope, $http, YouTubeService) {
 		});
     }
 	
+	$scope.addVideo = function (title, id) {
+		console.log(title+","+id);
+    }
+	
+	
 });

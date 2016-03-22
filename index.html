@@ -1,5 +1,5 @@
 <!doctype html>
-<html data-ng-app="QueueItUpApp">
+<html ng-app="QueueItUpApp">
 	<head>
 		<meta charset="utf-8">
 		<title>Queue It Up!</title>
@@ -9,24 +9,23 @@
 	</head>
 	<body>
 		
-		<div data-ng-controller="YouTubeController">
+		<div ng-controller="YouTubeController">
 			<h1>Queue It Up!</h1>
-			<form id="search" data-ng-submit="search()">
+			<form id="search" ng-submit="search()">
 				<input id="query" name="q" type="text" placeholder="Search for a YouTube video" data-ng-model="query">
 				<input id="submit" type="image" src="images/search.png" alt="Search">
 			</form>
-		
-		<div id="search_results">
-			<div class="result_box" ng-repeat="item in results">
-				<a href="#">
-					<img class="result_img" src="{{item.thumbnail}}" align="top"/>
+			
+			<div id="search_results">
+				<div class="result_box" ng-repeat="item in results">
+					<img class="result_img" ng-src="{{item.thumbnail}}" align="top"/>
 					<span class="result_text">
 						<span class="result_title">{{item.title}}</span><br/>
-						<span class="result_id">{{item.id}}</span>
+						<span class="result_author">{{item.author}}</span>
+						<p><button ng-click="$parent.addVideo(item.title,item.id)">Add to Queue</button></p>
 					</span>
-				</a>
+				</div>
 			</div>
-		</div>
 		
 		</div>		
 

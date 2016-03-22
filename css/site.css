@@ -38,3 +38,7 @@ body {
 	font-weight: bold;
 	
 }
+
+.result_box .result_text .result_author {
+	color: #444;
+}
