@@ -22,11 +22,25 @@
 					<span class="result_text">
 						<span class="result_title">{{item.title}}</span><br/>
 						<span class="result_author">{{item.author}}</span>
-						<p><button ng-click="$parent.addVideo(item.title,item.id)">Add to Queue</button></p>
+						<p>
+							<button ng-click="$parent.addVideo(item.id,item.title)">Add to Queue</button>
+							<button ng-click="$parent.playVideo(item.id,item.title)">Play Video</button>
+						</p>
 					</span>
 				</div>
 			</div>
-		
+			
+			<div id="player"><!-- Placeholder for YT video --></div>
+			
+			<div id="playlist">
+				<ul>
+					<li ng-repeat="item in playlist">
+						{{item.title}} -- {{item.id}} 
+						<button>+</button> <button>-</button>
+					</li>
+				</ul>
+			</div>
+			
 		</div>		
 
 		<!-- Vendor libraries -->

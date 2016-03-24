@@ -1,5 +1,7 @@
 app.controller('YouTubeController', function ($scope, $http, YouTubeService) {
 	
+	var control = this;	// "Pointer" to this controller for use in functions with new scope
+	
 	$scope.search = function () {
 		$http.get('https://www.googleapis.com/youtube/v3/search', {
 			params: {
@@ -20,9 +22,22 @@ app.controller('YouTubeController', function ($scope, $http, YouTubeService) {
 		});
     }
 	
-	$scope.addVideo = function (title, id) {
+	$scope.addVideo = function (id, title) {
 		console.log(title+","+id);
+		playlist.push({id:id,title:title});
+		// ** Visual feedback showing added to playlist will go here **
+		
+		if (playlist.length == 1) {
+			$scope.playVideo(playlist[0].id, playlist[0].title);
+		}
+		$scope.playlist = playlist;
     }
+	
+	$scope.playVideo = function (id, title) {
+		YouTubeService.launchPlayer(id, title);
+		//YouTubeService.archiveVideo(id, title);
+		//YouTubeService.deleteVideo($scope.upcoming, id);
+    };
 	
 	
 });

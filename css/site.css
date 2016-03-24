@@ -42,3 +42,15 @@ body {
 .result_box .result_text .result_author {
 	color: #444;
 }
+
+#player {
+	position: absolute;
+	left: 420px;
+	top: 80px;
+}
+
+#playlist {
+	position: absolute;
+	left: 420px;
+	top: 250px;
+}
