@@ -1,9 +1,9 @@
 app.service('YouTubeService', ['$window', '$rootScope', function ($window, $rootScope) {
 	
-	var service = this;	// "Pointer" to this service for use in functions with new scope
-	var youtube = null;	// Youtube's IFrame API object
+	var service = this;		// "Pointer" to this service for use in functions with new scope
+	var youtube = null;		// Youtube's IFrame API object
 	
-	// Object containing information for our app
+	var playlist = null;
 	var currentVideo = {
 		videoId: null,
 		videoTitle: null
@@ -29,7 +29,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	};
 	
 	function onYoutubeReady (event) {
-	
+		console.log("Youtube service ready");
 	}
 	
 	function onYoutubeStateChange (event) {
@@ -37,10 +37,8 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 			//
 		} else if (event.data == YT.PlayerState.PAUSED) {
 			//
-		} else if (event.data == YT.PlayerState.ENDED) {	
-			//service.launchPlayer(upcoming[0].id, upcoming[0].title);
-			//service.archiveVideo(upcoming[0].id, upcoming[0].title);
-			//service.deleteVideo(upcoming, upcoming[0].id);
+		} else if (event.data == YT.PlayerState.ENDED) {
+			service.broadcastVideoEnd();
 		}
 		$rootScope.$apply();
 	}
@@ -69,6 +67,26 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 		currentVideo.videoTitle = title;
 		console.log(youtube);
 		return youtube;
+	}
+	
+	this.getPlaylist = function () {
+		return playlist;
+	}
+	
+	this.setPlaylist = function (ctrlPlaylist) {
+		playlist = ctrlPlaylist;
+	}
+	
+	this.setCurrentVideo = function (id, title) {
+		currentVideo.videoId = id;
+		currentVideo.videoTitle = title;
+	}
+	
+	this.broadcastVideoEnd = function () {
+		$rootScope.$broadcast('eventVideoEnd', {	// Broadcast end of video for controller
+			playlist: playlist,
+			currentVideo: currentVideo
+		});
 	}
 	
 }]);

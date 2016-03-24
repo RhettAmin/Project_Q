@@ -2,7 +2,7 @@ var app = angular.module('QueueItUpApp', []);
 
 var results = [];
 var playlist = [];
-var history = [];
+var playHistory = [];
 var player;
 
 // Load the IFrame Player API code asynchronously
