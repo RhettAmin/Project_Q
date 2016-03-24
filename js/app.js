@@ -5,8 +5,10 @@ var playlist = [];
 var playHistory = [];
 var player;
 
-// Load the IFrame Player API code asynchronously
+// Runs initially
 app.run(function () {
+
+	// Load the Youtube IFrame Player API code asynchronously
 	var tag = document.createElement('script');
 	tag.src = "https://www.youtube.com/iframe_api";
 	var firstScriptTag = document.getElementsByTagName('script')[0];

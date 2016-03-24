@@ -9,6 +9,11 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 		videoTitle: null
 	};
 	
+	/*
+	 *	listResults(data)
+	 *	Parses the data from a YouTube search and returns a dictionary with
+	 *	{id, title, description, thumbnail, author}
+	 */
 	this.listResults = function (data) {
 		results.length = 0;
 		for (var i=0; i<data.items.length; i++) {
@@ -23,28 +28,41 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 		return results;
 	};
 	
+	/*
+	 *	onYouTubeIframeAPIReady()
+	 *	Activates ones the asynchronous load of YouTube's IFrame API is complete
+	 *  Loads the player
+	 */
 	$window.onYouTubeIframeAPIReady = function () {
 		service.loadPlayer();
-		$rootScope.$apply();
 	};
 	
+	/*
+	 *	onYoutubeReady(event)
+	 */
 	function onYoutubeReady (event) {
 		console.log("Youtube service ready");
 	}
 	
+	/*
+	 *	onYoutubeStateChange(event)
+	 *	Activates when the player's state changes (play, pause, stop)
+	 */
 	function onYoutubeStateChange (event) {
-		if (event.data == YT.PlayerState.PLAYING) {
-			//
-		} else if (event.data == YT.PlayerState.PAUSED) {
-			//
-		} else if (event.data == YT.PlayerState.ENDED) {
-			service.broadcastVideoEnd();
+		if (event.data == YT.PlayerState.PLAYING) {} 
+		else if (event.data == YT.PlayerState.PAUSED) {} 
+		else if (event.data == YT.PlayerState.ENDED) {
+			service.broadcastVideoEnd();	// Broadcast to controller that video ended
 		}
 		$rootScope.$apply();
 	}
 	
+	/*
+	 *	createPlayer()
+	 *	Creates the youtube player
+	 */
 	this.createPlayer = function () {
-		return new YT.Player('player', {
+		return new YT.Player('yt_player', {
 			height: '120',
 			width: '200',
 			videoId: 'bHQqvYy5KYo',
@@ -55,35 +73,97 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 		});
 	};
 	
-	this.loadPlayer = function () {
+	/*
+	 *	destroyPlayer()
+	 *	Destroys the youtube player if it exists
+	 */
+	this.destroyPlayer = function () {
 		if (youtube)
 			youtube.destroy();
-		youtube = service.createPlayer();
 	}
 	
+	/*
+	 *	loadPlayer()
+	 *	Attempts to destroy then create the player
+	 */
+	this.loadPlayer = function () {
+		service.destroyPlayer();
+		youtube = service.createPlayer();
+		$rootScope.$apply();
+	}
+	
+	/*
+	 *	hidePlayer()
+	 *	Hides the youtube player
+	 */
+	this.hidePlayer = function () {
+		document.getElementById('yt_player').style.display = 'none';
+	}
+	
+	/*
+	 *	showPlayer()
+	 *	Shows the youtube player
+	 */
+	this.showPlayer = function () {
+		document.getElementById('yt_player').style.display = 'block';
+	}
+	
+	/*
+	 *	pauseVideo()
+	 */
+	this.pauseVideo = function () {
+		youtube.pauseVideo();
+	}
+	
+	/*
+	 *	stopVideo()
+	 */
+	this.stopVideo = function () {
+		youtube.stopVideo();
+	}
+	
+	/*
+	 *	launchPlayer(id, title)
+	 *	Loads a video into the player
+	 */
 	this.launchPlayer = function (id, title) {
 		youtube.loadVideoById(id);
 		currentVideo.videoId = id;
 		currentVideo.videoTitle = title;
-		console.log(youtube);
 		return youtube;
 	}
 	
+	/*
+	 *	getPlaylist()
+	 *	Getter for playlist variable
+	 */
 	this.getPlaylist = function () {
 		return playlist;
 	}
 	
+	/*
+	 *	setPlaylist(ctrlPlaylist)
+	 *	Setter for playlist variable
+	 */
 	this.setPlaylist = function (ctrlPlaylist) {
 		playlist = ctrlPlaylist;
 	}
 	
+	/*
+	 *	setCurrentVideo(id, title)
+	 *	Sets the current video info for app
+	 */
 	this.setCurrentVideo = function (id, title) {
 		currentVideo.videoId = id;
 		currentVideo.videoTitle = title;
 	}
 	
+	/*
+	 *	broadcastVideoEnd()
+	 *	Broadcast end of video for controller
+	 */
 	this.broadcastVideoEnd = function () {
-		$rootScope.$broadcast('eventVideoEnd', {	// Broadcast end of video for controller
+		$rootScope.$broadcast('eventVideoEnd', {
 			playlist: playlist,
 			currentVideo: currentVideo
 		});
