@@ -1,11 +1,11 @@
 var app = angular.module('QueueItUpApp', []);
 
-var results = [];
-var playlist = [];
-var playHistory = [];
+var results = [];		// each item: { id, title, description, thumbnail, author }
+var playlist = [];		// each item: { id, title, votes }
+var playHistory = [];	// each item: { id, title }
 var player;
 
-// Runs initially
+// Initial startup
 app.run(function () {
 
 	// Load the Youtube IFrame Player API code asynchronously
@@ -13,4 +13,5 @@ app.run(function () {
 	tag.src = "https://www.youtube.com/iframe_api";
 	var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+	
 });

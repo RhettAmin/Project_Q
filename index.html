@@ -36,9 +36,10 @@
 			<div id="playlist">
 				<ul>
 					<li ng-repeat="item in playlist">
-						{{item.title}} -- {{item.id}} 
-						<button>+</button> 
-						<button>-</button> 
+						{{item.title}} 
+						<button ng-click="$parent.upvote(item.id)">+</button> 
+						<button ng-click="$parent.downvote(item.id)">-</button> 
+						[{{item.votes }}]
 						<button ng-click="$parent.removeVideo(item.id,item.title)">x</button>
 					</li>
 				</ul>

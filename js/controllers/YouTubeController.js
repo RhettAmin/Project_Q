@@ -28,7 +28,7 @@ app.controller('YouTubeController', function ($scope, $http, YouTubeService) {
 	 *	Adds a Youtube video to the playlist
 	 */
 	$scope.addVideo = function (id, title) {
-		playlist.push({id:id,title:title});	// push id and title to the playlist variable
+		playlist.push({id:id,title:title,votes:0});	// push id and title to the playlist variable
 		
 		// ** Visual feedback showing added to playlist will go here **
 		
@@ -60,12 +60,48 @@ app.controller('YouTubeController', function ($scope, $http, YouTubeService) {
 				break;
 			}
 		}
+		
 		$scope.playlist = playlist;
 		$scope.playHistory = playHistory;
 		YouTubeService.setPlaylist(playlist);
+		
 		if (playlist.length <= 0) {
 			YouTubeService.hidePlayer();
 		}
+	}
+	
+	/*
+	 *	upvote(id)
+	 *	Upvotes an item in the playlist
+	 */
+	$scope.upvote = function (id) {
+		for (var i=0; i<playlist.length; i++) {
+			if (playlist[i].id === id) {
+				playlist[i].votes += 1;
+				console.log(playlist[i]);
+				break;
+			}
+		}
+		
+		$scope.playlist = playlist;
+		YouTubeService.setPlaylist(playlist);
+	}
+	
+	/*
+	 *	downvote(id)
+	 *	Downvotes an item in the playlist
+	 */
+	$scope.downvote = function (id) {
+		for (var i=0; i<playlist.length; i++) {
+			if (playlist[i].id === id) {
+				playlist[i].votes -= 1;
+				console.log(playlist[i]);
+				break;
+			}
+		}
+		
+		$scope.playlist = playlist;
+		YouTubeService.setPlaylist(playlist);
 	}
 	
 	/*
