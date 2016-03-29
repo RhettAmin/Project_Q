@@ -54,3 +54,8 @@ body {
 	left: 420px;
 	top: 250px;
 }
+
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
