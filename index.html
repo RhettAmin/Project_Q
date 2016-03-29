@@ -11,6 +11,11 @@
 		
 		<div ng-controller="MainCtrl">
 			<h1>Queue It Up!</h1>
+			
+			<span id="current_track" ng-model="currentTrack">
+				{{currentTrack.title}} {{currentTrack.state}}
+			</span>
+			
 			<form id="search" ng-submit="search(search_type)" ng-init="search_type='youtube'">
 				<input id="query" name="q" type="text" placeholder="Search for a YouTube video" data-ng-model="query">
 				<input id="submit" type="image" src="images/search.png" alt="Search"> <br/>

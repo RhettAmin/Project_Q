@@ -3,6 +3,7 @@ var app = angular.module('QueueItUpApp', []);
 var results = [];		// each item: { id, title, description, thumbnail, author }
 var playlist = [];		// each item: { id, title, votes }
 var playHistory = [];	// each item: { id, title }
+var currentTrack = { id:"", title:"", type:"", state:"stopped" };
 var player;
 
 // Initial startup

@@ -50,10 +50,17 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *	Activates when the player's state changes (play, pause, stop)
 	 */
 	function onYoutubeStateChange (event) {
-		if (event.data == YT.PlayerState.PLAYING) {} 
-		else if (event.data == YT.PlayerState.PAUSED) {} 
+		if (event.data == YT.PlayerState.PLAYING) {
+			service.broadcastVideoPlay();	// Broadcast to controller that video playing
+		} 
+		else if (event.data == YT.PlayerState.PAUSED) {
+			service.broadcastVideoPause();	// Broadcast to controller that video paused
+		} 
 		else if (event.data == YT.PlayerState.ENDED) {
 			service.broadcastVideoEnd();	// Broadcast to controller that video ended
+		} 
+		else if (event.data == YT.PlayerState.CUED) {
+			service.broadcastVideoCue();
 		}
 		$rootScope.$apply();
 	}
@@ -173,6 +180,39 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	this.broadcastVideoEnd = function () {
 		$rootScope.$broadcast('eventVideoEnd', {
+			playlist: playlist,
+			currentVideo: currentVideo
+		});
+	}
+	
+	/*
+	 *	broadcastVideoPause()
+	 *	Broadcast end of video for controller
+	 */
+	this.broadcastVideoPause = function () {
+		$rootScope.$broadcast('eventVideoPause', {
+			playlist: playlist,
+			currentVideo: currentVideo
+		});
+	}
+	
+	/*
+	 *	broadcastVideoPlay()
+	 *	Broadcast playing of video for controller
+	 */
+	this.broadcastVideoPlay = function () {
+		$rootScope.$broadcast('eventVideoPlay', {
+			playlist: playlist,
+			currentVideo: currentVideo
+		});
+	}
+	
+	/*
+	 *	broadcastVideoCue()
+	 *	Broadcast cue of video (stopped but ready) for controller
+	 */
+	this.broadcastVideoCue = function () {
+		$rootScope.$broadcast('eventVideoCue', {
 			playlist: playlist,
 			currentVideo: currentVideo
 		});

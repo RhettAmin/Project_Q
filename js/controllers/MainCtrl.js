@@ -29,7 +29,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			
 			// TODO: Soundcloud search functionality will go here
 		}
-    }
+    };
 	
 	/*
 	 *	addTrack(id, title, type)
@@ -52,7 +52,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 		}
 		$scope.playlist = playlist;				// Set playlist variable in scope for html
 		YouTubeService.setPlaylist(playlist);	// Set playlist variable in YT service
-    }
+    };
 	
 	/*
 	 *	playTrack(id, title, type)
@@ -62,7 +62,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 		if (type === "youtube") {
 			YouTubeService.launchPlayer(id, title);
 			YouTubeService.showPlayer();
-			console.log(YouTubeService.getCurrentVideo());
+			$scope.updateCurrentTrack(id, title, type, 'playing');
 		}
     };
 	
@@ -91,7 +91,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			$scope.playTrack(playlist[0].id, playlist[0].title, playlist[0].type); // Play next video
 		}
 		
-	}
+	};
 	
 	/*
 	 *	upvote(id)
@@ -107,7 +107,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 		
 		$scope.playlist = playlist;
 		YouTubeService.setPlaylist(playlist);
-	}
+	};
 	
 	/*
 	 *	downvote(id)
@@ -123,20 +123,64 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 		
 		$scope.playlist = playlist;
 		YouTubeService.setPlaylist(playlist);
-	}
+	};
+	
+	/*
+	 *	updateCurrentTrack(id, title, type)
+	 *	Updates the current track values in each service and main scope
+	 */
+	$scope.updateCurrentTrack = function (id, title, type, state) {
+		$scope.currentTrack = { id:id, title:title, type:type, state:state };
+		YouTubeService.setCurrentVideo(id, title);
+	};
+	
+	/*
+	 *	updateCurrentState(state)
+	 *	Updates the current track's state (playing, stopped, or paused)
+	 */
+	$scope.updateCurrentState = function (state) {
+		$scope.currentTrack.state = state;
+	};
 	
 	/*
 	 *	Listener for broadcast from service stating the end of a video
 	 *	Pops a video off the top of the playlist and plays the next video
 	 */
 	$scope.$on('eventVideoEnd', function(event, data) {
-        console.log("video ended");
-		$scope.removeTrack(data.currentVideo.videoId);
+        console.log("Video ended");
+		$scope.removeTrack(data.currentVideo.id);
+		$scope.updateCurrentTrack('','','','stopped');
 		if (playlist.length > 0)
 			$scope.playTrack(playlist[0].id, playlist[0].title, playlist[0].type);
 		else
 			YouTubeService.hidePlayer();
     });
 	
+	/*
+	 *	Listener for broadcast from service stating the video has been paused
+	 *	Just updates the state
+	 */
+	$scope.$on('eventVideoPause', function(event, data) {
+        console.log("Video paused");
+		$scope.updateCurrentState('paused');
+    });
+	
+	/*
+	 *	Listener for broadcast from service stating the video has been started
+	 *	Just updates the state
+	 */
+	$scope.$on('eventVideoPlay', function(event, data) {
+        console.log("Video playing");
+		$scope.updateCurrentState('playing');
+    });
+	
+	/*
+	 *	Listener for broadcast from service stating the video has been cued
+	 *	Just updates the state
+	 */
+	$scope.$on('eventVideoCue', function(event, data) {
+        console.log("Video cued");
+		$scope.updateCurrentState('stopped');
+    });
 	
 });
