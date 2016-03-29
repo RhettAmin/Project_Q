@@ -5,8 +5,8 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	
 	var playlist = null;
 	var currentVideo = {
-		videoId: null,
-		videoTitle: null
+		id: null,
+		title: null
 	};
 	
 	/*
@@ -35,6 +35,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	$window.onYouTubeIframeAPIReady = function () {
 		service.loadPlayer();
+		service.hidePlayer();
 	};
 	
 	/*
@@ -128,8 +129,8 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	this.launchPlayer = function (id, title) {
 		youtube.loadVideoById(id);
-		currentVideo.videoId = id;
-		currentVideo.videoTitle = title;
+		currentVideo.id = id;
+		currentVideo.title = title;
 		return youtube;
 	}
 	
@@ -150,12 +151,20 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	}
 	
 	/*
+	 *	getCurrentVideo()
+	 *	Getter for current video
+	 */
+	this.getCurrentVideo = function () {
+		return currentVideo;
+	}
+	
+	/*
 	 *	setCurrentVideo(id, title)
 	 *	Sets the current video info for app
 	 */
 	this.setCurrentVideo = function (id, title) {
-		currentVideo.videoId = id;
-		currentVideo.videoTitle = title;
+		currentVideo.id = id;
+		currentVideo.title = title;
 	}
 	
 	/*
