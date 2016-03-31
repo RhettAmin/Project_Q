@@ -3,9 +3,18 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Queue It Up!</title>
+		
+		<!-- CSS links -->
 		<link rel="stylesheet" type="text/css" href="fonts/coolvetica.css">
 		<link rel="stylesheet" type="text/css" href="fonts/hack.css">
 		<link rel="stylesheet" type="text/css" href="css/site.css">
+		<!-- External Scripts -->
+		<script src="https://w.soundcloud.com/player/api.js"></script>
+		<script>
+			var SC_widget = SC; // Copy SC into another variable so we can use both SC APIs.
+		</script>
+		<script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
+		
 	</head>
 	<body ng-cloak>
 		
@@ -17,8 +26,8 @@
 			</span>
 			
 			<form id="search" ng-submit="search(search_type)" ng-init="search_type='youtube'">
-				<input id="query" name="q" type="text" placeholder="Search for a YouTube video" data-ng-model="query">
-				<input id="submit" type="image" src="images/search.png" alt="Search"> <br/>
+				<input id="query" name="q" type="text" placeholder="Loading..." data-ng-model="query" disabled>
+				<input id="submit" type="image" src="images/search.png" alt="Search" disabled> <br/>
 				<input type="radio" name="search_type" value="youtube" ng-model="search_type"> YouTube<br>
 				<input type="radio" name="search_type" value="soundcloud" ng-model="search_type"> SoundCloud<br>
 			</form>
@@ -30,7 +39,7 @@
 						<span class="result_title">{{item.title}}</span><br/>
 						<span class="result_author">{{item.author}}</span>
 						<p>
-							<button ng-click="$parent.addTrack(item.id,item.title,'youtube')">Add to Queue</button>
+							<button ng-click="$parent.addTrack(item.id,item.title,search_type)">Add to Queue</button>
 						</p>
 					</span>
 				</div>
@@ -38,6 +47,7 @@
 			
 			<div id="player">
 				<div id="yt_player"><!-- Placeholder for YT video --></div>
+				<iframe id="sc_player"><!-- Placeholder for SC video --></iframe>
 			</div>
 			
 			<div id="playlist">
@@ -63,5 +73,6 @@
 		<script src="js/app.js"></script>
 		<script src="js/controllers/MainCtrl.js"></script>
 		<script src="js/services/YouTubeService.js"></script>
+		<script src="js/services/SoundCloudService.js"></script>
 	</body>
 </html>

@@ -34,6 +34,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *  Loads the player
 	 */
 	$window.onYouTubeIframeAPIReady = function () {
+		console.log('Youtube IFrame API ready');
 		service.loadPlayer();
 		service.hidePlayer();
 	};
@@ -43,6 +44,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	function onYoutubeReady (event) {
 		console.log("Youtube service ready");
+		service.broadcastYTServiceReady();
 	}
 	
 	/*
@@ -216,6 +218,14 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 			playlist: playlist,
 			currentVideo: currentVideo
 		});
+	}
+	
+	/*
+	 *	broadcastYTServiceReady()
+	 *	Broadcast event stating service is ready for controller
+	 */
+	this.broadcastYTServiceReady = function () {
+		$rootScope.$broadcast('eventYTServiceReady', {});
 	}
 	
 }]);

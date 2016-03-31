@@ -1,4 +1,4 @@
-app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
+app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudService) {
 	
 	/*
 	 *	search()
@@ -7,7 +7,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 	$scope.search = function (type) {
 		
 		console.log("Search of type: "+type);
-		if (type === "youtube" ) {
+		if (type === "youtube" ) {					// -- If searching for Youtube
 			
 			$http.get('https://www.googleapis.com/youtube/v3/search', {	// Make an api call with search query
 				params: {
@@ -25,9 +25,17 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			.error( function (err) {
 				console.log(err);
 			});
-		} else if (type === "soundcloud") {
+		} else if (type === "soundcloud") {			// -- If searching for Soundcloud
 			
-			// TODO: Soundcloud search functionality will go here
+			SC.get('/tracks', {
+				q: this.query
+			})
+			.then( function (data) {
+				console.log(data);
+				$scope.results = SoundCloudService.listResults(data);	// List the results
+				$scope.$apply();	// Without this the SC search takes 2 button presses for some reason
+			});
+			
 		}
     };
 	
@@ -44,14 +52,14 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			votes:0,
 			type:type
 		});
+		console.log('Adding track of type: '+type);
 		
 		// TODO: Visual feedback showing added to playlist will go here
 		
 		if (playlist.length == 1) {				// Start playing if its the only video in the list
 			$scope.playTrack(playlist[0].id, playlist[0].title, type);
 		}
-		$scope.playlist = playlist;				// Set playlist variable in scope for html
-		YouTubeService.setPlaylist(playlist);	// Set playlist variable in YT service
+		$scope.updatePlaylist(playlist);		// Set playlist variable in YT service
     };
 	
 	/*
@@ -79,9 +87,8 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			}
 		}
 		
-		$scope.playlist = playlist;
+		$scope.updatePlaylist(playlist);
 		$scope.playHistory = playHistory;
-		YouTubeService.setPlaylist(playlist);
 		
 		var currentVid = YouTubeService.getCurrentVideo().id;
 		if (playlist.length <= 0) {					// If no videos left
@@ -105,8 +112,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			}
 		}
 		
-		$scope.playlist = playlist;
-		YouTubeService.setPlaylist(playlist);
+		$scope.updatePlaylist(playlist);
 	};
 	
 	/*
@@ -121,9 +127,18 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 			}
 		}
 		
-		$scope.playlist = playlist;
-		YouTubeService.setPlaylist(playlist);
+		$scope.updatePlaylist(playlist);
 	};
+	
+	/*
+	 * updatePlaylist(playlist)
+	 * Sends out updates to scope and each service to keep their playlists synchronized
+	 */
+	$scope.updatePlaylist = function (playlist) {
+		$scope.playlist = playlist;					// Set playlist variable in scope for html
+		YouTubeService.setPlaylist(playlist);		// Set playlist variable in YouTube service
+		//SoundCloudService.setPlaylist(playlist);	// Set playlist variable in SoundCloud service
+	}
 	
 	/*
 	 *	updateCurrentTrack(id, title, type)
@@ -181,6 +196,17 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService) {
 	$scope.$on('eventVideoCue', function(event, data) {
         console.log("Video cued");
 		$scope.updateCurrentState('stopped');
+    });
+	
+	/*
+	 *	Listener for broadcast from service stating services are ready for use
+	 *	Enables the search box
+	 */
+	$scope.$on('eventYTServiceReady', function(event, data) {
+        //console.log("All services ready");
+		document.getElementById('query').removeAttribute('disabled');
+		document.getElementById('submit').removeAttribute('disabled');
+		document.getElementById('query').setAttribute('placeholder','Search for a track');
     });
 	
 });
