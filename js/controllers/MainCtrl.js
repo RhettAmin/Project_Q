@@ -20,11 +20,12 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 				}
 			})
 			.success( function (data) {		// On success
-				$scope.results = YouTubeService.listResults(data);	// List the results
+				$scope.results = YouTubeService.listResults(data);	// Parse and list the results
 			})
 			.error( function (err) {
 				console.log(err);
 			});
+			
 		} else if (type === "soundcloud") {			// -- If searching for Soundcloud
 			
 			SC.get('/tracks', {
@@ -32,8 +33,8 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 			})
 			.then( function (data) {
 				console.log(data);
-				$scope.results = SoundCloudService.listResults(data);	// List the results
-				$scope.$apply();	// Without this the SC search takes 2 button presses for some reason
+				$scope.results = SoundCloudService.listResults(data);	// Parse and list the results
+				$scope.$apply();	// Without this the search takes 2 button presses since SC works differently than $http
 			});
 			
 		}
@@ -41,11 +42,11 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	
 	/*
 	 *	addTrack(id, title, type)
-	 *	Adds a Youtube video to the playlist
+	 *	Adds a track to the playlist
 	 */
 	$scope.addTrack = function (id, title, type) {
 		
-		// Add the YouTube video to the playlist
+		// Add the track to the playlist
 		playlist.push({
 			id:id,
 			title:title,
@@ -71,6 +72,9 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 			YouTubeService.launchPlayer(id, title);
 			YouTubeService.showPlayer();
 			$scope.updateCurrentTrack(id, title, type, 'playing');
+		}
+		else if (type === "soundcloud") {
+			SoundCloudService.launchPlayer(id, title);
 		}
     };
 	
@@ -147,6 +151,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	$scope.updateCurrentTrack = function (id, title, type, state) {
 		$scope.currentTrack = { id:id, title:title, type:type, state:state };
 		YouTubeService.setCurrentVideo(id, title);
+		//SoundCloudService.setCurrentVideo(playlist);
 	};
 	
 	/*
@@ -156,6 +161,10 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	$scope.updateCurrentState = function (state) {
 		$scope.currentTrack.state = state;
 	};
+	
+	/****** Event listeners ******/
+	
+	/** YouTube Event Listeners **/
 	
 	/*
 	 *	Listener for broadcast from service stating the end of a video
@@ -208,5 +217,44 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		document.getElementById('submit').removeAttribute('disabled');
 		document.getElementById('query').setAttribute('placeholder','Search for a track');
     });
+	
+	/** SoundCloud Event Listeners **/
+	
+	/*
+	 *	Listener for broadcast from service stating that the player is ready
+	 *	
+	 */
+	$scope.$on('eventSCReady', function(event, data) {
+        console.log("SC Ready");
+		//console.log(data);
+    });
+	
+	/*
+	 *	Listener for broadcast from service stating that the player is ready
+	 *	
+	 */
+	$scope.$on('eventSCPlaying', function(event, data) {
+        console.log("SC Playing");
+		//console.log(data);
+    });
+	
+	/*
+	 *	Listener for broadcast from service stating that the player is ready
+	 *	
+	 */
+	$scope.$on('eventSCPaused', function(event, data) {
+        console.log("SC Paused");
+		//console.log(data);
+    });
+	
+	/*
+	 *	Listener for broadcast from service stating that the player is ready
+	 *	
+	 */
+	$scope.$on('eventSCFinished', function(event, data) {
+        console.log("SC Finished");
+		//console.log(data);
+    });
+	
 	
 });

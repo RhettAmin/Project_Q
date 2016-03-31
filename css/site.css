@@ -49,12 +49,15 @@ body {
 	top: 120px;
 }
 
+#sc_player {
+	display: none;
+}
+
 #playlist {
 	position: absolute;
 	left: 420px;
 	top: 250px;
 }
-
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
