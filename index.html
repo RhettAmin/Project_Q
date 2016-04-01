@@ -9,10 +9,6 @@
 		<link rel="stylesheet" type="text/css" href="fonts/hack.css">
 		<link rel="stylesheet" type="text/css" href="css/site.css">
 		<!-- External Scripts -->
-		<script src="https://w.soundcloud.com/player/api.js"></script>
-		<script>
-			var SC_widget = SC; // Copy SC into another variable so we can use both SC APIs.
-		</script>
 		<script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
 		
 	</head>
@@ -47,7 +43,11 @@
 			
 			<div id="player">
 				<div id="yt_player"><!-- Placeholder for YT video --></div>
-				<iframe id="sc_player"><!-- Placeholder for SC video --></iframe>
+				<div id="sc_player"><!-- Placeholder for SC video --></div>
+				<button id="play" ng-click="btnPlay()">Play</button>
+				<button id="pause" ng-click="btnPause()">Pause</button>
+				<button id="next" ng-click="btnNext()">Next</button>
+				<button id="back*" ng-click="btnBack()">Back</button>
 			</div>
 			
 			<div id="playlist">
@@ -58,6 +58,7 @@
 						<button ng-click="$parent.downvote(item.id)">-</button> 
 						[{{item.votes }}]
 						<button ng-click="$parent.removeTrack(item.id,item.title)">x</button>
+						<!-- Note use of $parent because ng-repeat creates its own scope -->
 					</li>
 				</ul>
 			</div>

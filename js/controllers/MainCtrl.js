@@ -32,7 +32,6 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 				q: this.query
 			})
 			.then( function (data) {
-				console.log(data);
 				$scope.results = SoundCloudService.listResults(data);	// Parse and list the results
 				$scope.$apply();	// Without this the search takes 2 button presses since SC works differently than $http
 			});
@@ -53,7 +52,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 			votes:0,
 			type:type
 		});
-		console.log('Adding track of type: '+type);
+		console.log('Adding <'+type+'> track: '+title);
 		
 		// TODO: Visual feedback showing added to playlist will go here
 		
@@ -68,24 +67,21 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Plays a video in the YouTube player
 	 */
 	$scope.playTrack = function (id, title, type) {
-		if (type === "youtube") {
+		if (type === "youtube")
 			YouTubeService.launchPlayer(id, title);
-			YouTubeService.showPlayer();
-			$scope.updateCurrentTrack(id, title, type, 'playing');
-		}
-		else if (type === "soundcloud") {
+		else if (type === "soundcloud")
 			SoundCloudService.launchPlayer(id, title);
-		}
+		$scope.updateCurrentTrack(id, title, type, 'playing');
     };
 	
 	/*
-	 *	removeTrack(id, title)
+	 *	removeTrack(id)
 	 *	Removes a video from the playlist and adds it to the play history
 	 */
-	$scope.removeTrack = function (id, title) {
+	$scope.removeTrack = function (id, type) {
 		for (var i=0; i<playlist.length; i++) {
 			if (playlist[i].id === id) {
-				playHistory.push({id:id,title:title,type:playlist[i].type});
+				playHistory.push({id:playlist[i].id,title:playlist[i].title,type:playlist[i].type});
 				playlist.splice(i,1);
 				break;
 			}
@@ -94,13 +90,13 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		$scope.updatePlaylist(playlist);
 		$scope.playHistory = playHistory;
 		
-		var currentVid = YouTubeService.getCurrentVideo().id;
-		if (playlist.length <= 0) {					// If no videos left
-			YouTubeService.stopVideo();				//  Stop Video
-			YouTubeService.hidePlayer();			//  Hide player
-		} else if (currentVid === id) {				// If currently playing video deleted 
+		var currentVidId = $scope.currentTrack.id;
+		console.log($scope.currentTrack.title);
+		
+		YouTubeService.stopVideo();				//  Stop Video
+		SoundCloudService.pauseTrack();			//	Stop Track
+		if (currentVidId === id)				// If currently playing video deleted 
 			$scope.playTrack(playlist[0].id, playlist[0].title, playlist[0].type); // Play next video
-		}
 		
 	};
 	
@@ -140,8 +136,6 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 */
 	$scope.updatePlaylist = function (playlist) {
 		$scope.playlist = playlist;					// Set playlist variable in scope for html
-		YouTubeService.setPlaylist(playlist);		// Set playlist variable in YouTube service
-		//SoundCloudService.setPlaylist(playlist);	// Set playlist variable in SoundCloud service
 	}
 	
 	/*
@@ -150,8 +144,6 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 */
 	$scope.updateCurrentTrack = function (id, title, type, state) {
 		$scope.currentTrack = { id:id, title:title, type:type, state:state };
-		YouTubeService.setCurrentVideo(id, title);
-		//SoundCloudService.setCurrentVideo(playlist);
 	};
 	
 	/*
@@ -162,98 +154,86 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		$scope.currentTrack.state = state;
 	};
 	
+	/*
+	 *	btnPlay()
+	 *	Button function that plays the song
+	 */
+	$scope.btnPlay = function () {
+		var type = $scope.currentTrack.type;
+		if (type === "youtube") {
+			YouTubeService.playVideo();
+		} 
+		else if (type === "soundcloud") {
+			SoundCloudService.playTrack();
+		}
+	}
+	
+	/*
+	 *	btnPause()
+	 *	Button function that pauses the song
+	 */
+	$scope.btnPause = function () {
+		var type = $scope.currentTrack.type;
+		if (type === "youtube") {
+			YouTubeService.pauseVideo();
+		} 
+		else if (type === "soundcloud") {
+			SoundCloudService.pauseTrack();
+		}
+	}
+	
+	/*
+	 *	btnNext()
+	 *	Button function that goes to the next song
+	 */
+	$scope.btnNext = function () {
+		$scope.removeTrack($scope.currentTrack.id);
+	}
+	
+	
 	/****** Event listeners ******/
 	
-	/** YouTube Event Listeners **/
+	/*
+	 *	Listener for broadcast from service stating the end of a track
+	 *	Pops a track off the top of the playlist and plays the next track
+	 */
+	$scope.$on('eventYTFinish', function(event, data) {
+		console.log("YOUTUBE finish");
+        $scope.trackFinished();
+    });
 	
 	/*
-	 *	Listener for broadcast from service stating the end of a video
-	 *	Pops a video off the top of the playlist and plays the next video
+	 *	Listener for broadcast from service stating the end of a track
+	 *	Pops a track off the top of the playlist and plays the next track
 	 */
-	$scope.$on('eventVideoEnd', function(event, data) {
-        console.log("Video ended");
-		$scope.removeTrack(data.currentVideo.id);
-		$scope.updateCurrentTrack('','','','stopped');
-		if (playlist.length > 0)
+	$scope.$on('eventSCFinish', function(event, data) {
+		console.log("SOUNDCLOUD finish");
+        $scope.trackFinished();
+    });
+	
+	/*
+	 *	trackFinished()
+	 *	Called when track finished
+	 */
+	$scope.trackFinished = function () {
+		//console.log("Track ended");
+		$scope.removeTrack($scope.currentTrack.id);
+		if (playlist.length > 0) {
+			console.log(playlist[0].title);
 			$scope.playTrack(playlist[0].id, playlist[0].title, playlist[0].type);
+		}
 		else
-			YouTubeService.hidePlayer();
-    });
-	
-	/*
-	 *	Listener for broadcast from service stating the video has been paused
-	 *	Just updates the state
-	 */
-	$scope.$on('eventVideoPause', function(event, data) {
-        console.log("Video paused");
-		$scope.updateCurrentState('paused');
-    });
-	
-	/*
-	 *	Listener for broadcast from service stating the video has been started
-	 *	Just updates the state
-	 */
-	$scope.$on('eventVideoPlay', function(event, data) {
-        console.log("Video playing");
-		$scope.updateCurrentState('playing');
-    });
-	
-	/*
-	 *	Listener for broadcast from service stating the video has been cued
-	 *	Just updates the state
-	 */
-	$scope.$on('eventVideoCue', function(event, data) {
-        console.log("Video cued");
-		$scope.updateCurrentState('stopped');
-    });
+			$scope.updateCurrentTrack('','','','stopped');
+	}
 	
 	/*
 	 *	Listener for broadcast from service stating services are ready for use
 	 *	Enables the search box
 	 */
 	$scope.$on('eventYTServiceReady', function(event, data) {
-        //console.log("All services ready");
 		document.getElementById('query').removeAttribute('disabled');
 		document.getElementById('submit').removeAttribute('disabled');
 		document.getElementById('query').setAttribute('placeholder','Search for a track');
-    });
-	
-	/** SoundCloud Event Listeners **/
-	
-	/*
-	 *	Listener for broadcast from service stating that the player is ready
-	 *	
-	 */
-	$scope.$on('eventSCReady', function(event, data) {
-        console.log("SC Ready");
-		//console.log(data);
-    });
-	
-	/*
-	 *	Listener for broadcast from service stating that the player is ready
-	 *	
-	 */
-	$scope.$on('eventSCPlaying', function(event, data) {
-        console.log("SC Playing");
-		//console.log(data);
-    });
-	
-	/*
-	 *	Listener for broadcast from service stating that the player is ready
-	 *	
-	 */
-	$scope.$on('eventSCPaused', function(event, data) {
-        console.log("SC Paused");
-		//console.log(data);
-    });
-	
-	/*
-	 *	Listener for broadcast from service stating that the player is ready
-	 *	
-	 */
-	$scope.$on('eventSCFinished', function(event, data) {
-        console.log("SC Finished");
-		//console.log(data);
     });
 	
 	

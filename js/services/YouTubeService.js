@@ -3,12 +3,6 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	var service = this;		// "Pointer" to this service for use in functions with new scope
 	var youtube = null;		// Youtube's IFrame API object
 	
-	var playlist = null;
-	var currentVideo = {
-		id: null,
-		title: null
-	};
-	
 	/*
 	 *	listResults(data)
 	 *	Parses the data from a YouTube search and returns a dictionary with
@@ -35,8 +29,8 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	$window.onYouTubeIframeAPIReady = function () {
 		console.log('Youtube IFrame API ready');
-		service.loadPlayer();
-		service.hidePlayer();
+		youtube = service.createPlayer();
+		$rootScope.$apply();
 	};
 	
 	/*
@@ -52,18 +46,9 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *	Activates when the player's state changes (play, pause, stop)
 	 */
 	function onYoutubeStateChange (event) {
-		if (event.data == YT.PlayerState.PLAYING) {
-			service.broadcastVideoPlay();	// Broadcast to controller that video playing
+		if (event.data == YT.PlayerState.ENDED) {
+			service.broadcastFinish();	// Broadcast to controller that video playing
 		} 
-		else if (event.data == YT.PlayerState.PAUSED) {
-			service.broadcastVideoPause();	// Broadcast to controller that video paused
-		} 
-		else if (event.data == YT.PlayerState.ENDED) {
-			service.broadcastVideoEnd();	// Broadcast to controller that video ended
-		} 
-		else if (event.data == YT.PlayerState.CUED) {
-			service.broadcastVideoCue();
-		}
 		$rootScope.$apply();
 	}
 	
@@ -93,29 +78,10 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	}
 	
 	/*
-	 *	loadPlayer()
-	 *	Attempts to destroy then create the player
+	 *	playVideo()
 	 */
-	this.loadPlayer = function () {
-		service.destroyPlayer();
-		youtube = service.createPlayer();
-		$rootScope.$apply();
-	}
-	
-	/*
-	 *	hidePlayer()
-	 *	Hides the youtube player
-	 */
-	this.hidePlayer = function () {
-		document.getElementById('yt_player').style.display = 'none';
-	}
-	
-	/*
-	 *	showPlayer()
-	 *	Shows the youtube player
-	 */
-	this.showPlayer = function () {
-		document.getElementById('yt_player').style.display = 'block';
+	this.playVideo = function () {
+		youtube.playVideo();
 	}
 	
 	/*
@@ -138,86 +104,15 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	this.launchPlayer = function (id, title) {
 		youtube.loadVideoById(id);
-		currentVideo.id = id;
-		currentVideo.title = title;
 		return youtube;
 	}
 	
 	/*
-	 *	getPlaylist()
-	 *	Getter for playlist variable
-	 */
-	this.getPlaylist = function () {
-		return playlist;
-	}
-	
-	/*
-	 *	setPlaylist(ctrlPlaylist)
-	 *	Setter for playlist variable
-	 */
-	this.setPlaylist = function (ctrlPlaylist) {
-		playlist = ctrlPlaylist;
-	}
-	
-	/*
-	 *	getCurrentVideo()
-	 *	Getter for current video
-	 */
-	this.getCurrentVideo = function () {
-		return currentVideo;
-	}
-	
-	/*
-	 *	setCurrentVideo(id, title)
-	 *	Sets the current video info for app
-	 */
-	this.setCurrentVideo = function (id, title) {
-		currentVideo.id = id;
-		currentVideo.title = title;
-	}
-	
-	/*
-	 *	broadcastVideoEnd()
+	 *	broadcastFinish()
 	 *	Broadcast end of video for controller
 	 */
-	this.broadcastVideoEnd = function () {
-		$rootScope.$broadcast('eventVideoEnd', {
-			playlist: playlist,
-			currentVideo: currentVideo
-		});
-	}
-	
-	/*
-	 *	broadcastVideoPause()
-	 *	Broadcast end of video for controller
-	 */
-	this.broadcastVideoPause = function () {
-		$rootScope.$broadcast('eventVideoPause', {
-			playlist: playlist,
-			currentVideo: currentVideo
-		});
-	}
-	
-	/*
-	 *	broadcastVideoPlay()
-	 *	Broadcast playing of video for controller
-	 */
-	this.broadcastVideoPlay = function () {
-		$rootScope.$broadcast('eventVideoPlay', {
-			playlist: playlist,
-			currentVideo: currentVideo
-		});
-	}
-	
-	/*
-	 *	broadcastVideoCue()
-	 *	Broadcast cue of video (stopped but ready) for controller
-	 */
-	this.broadcastVideoCue = function () {
-		$rootScope.$broadcast('eventVideoCue', {
-			playlist: playlist,
-			currentVideo: currentVideo
-		});
+	this.broadcastFinish = function () {
+		$rootScope.$broadcast('eventYTFinish', {});
 	}
 	
 	/*
