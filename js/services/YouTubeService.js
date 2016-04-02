@@ -2,6 +2,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	
 	var service = this;		// "Pointer" to this service for use in functions with new scope
 	var youtube = null;		// Youtube's IFrame API object
+	var timeTracking = false;
 	
 	/*
 	 *	listResults(data)
@@ -16,7 +17,8 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 				title: data.items[i].snippet.title,
 				description: data.items[i].snippet.description,
 				thumbnail: data.items[i].snippet.thumbnails.default.url,
-				author: data.items[i].snippet.channelTitle
+				author: data.items[i].snippet.channelTitle,
+				duration: data.items[i].duration
 			});
 		}
 		return results;
@@ -47,9 +49,36 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	function onYoutubeStateChange (event) {
 		if (event.data == YT.PlayerState.ENDED) {
-			service.broadcastFinish();	// Broadcast to controller that video playing
-		} 
+			service.timeTracking = false;
+			service.broadcastFinish();	// Broadcast to controller that video finished
+		}
+		else if (event.data == YT.PlayerState.PAUSED) {
+			service.timeTracking = false;
+		}
+		else if (event.data == YT.PlayerState.PLAYING) {
+			service.timeTracking = true;
+			service.trackTime();
+		}
 		$rootScope.$apply();
+	}
+	
+	/*
+	 *	trackTime()
+	 *
+	 */
+	this.trackTime = function () {
+		if (service.timeTracking) {
+			service.broadcastTime(youtube.getCurrentTime());
+			setTimeout(service.trackTime,200);
+		}
+	}
+	
+	/*
+	 *	getMaxTime()
+	 *	Gets the total duration of the track
+	 */
+	this.getMaxTime = function () {
+		return youtube;
 	}
 	
 	/*
@@ -116,11 +145,31 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	}
 	
 	/*
+	 *	broadcastPlaying()
+	 *	Broadcast video playing for controller
+	 */
+	this.broadcastPlaying = function () {
+		$rootScope.$broadcast('eventPlaying', {
+			time: 111//youtube.getCurrentTime()
+		});
+	}
+	
+	/*
 	 *	broadcastYTServiceReady()
 	 *	Broadcast event stating service is ready for controller
 	 */
 	this.broadcastYTServiceReady = function () {
 		$rootScope.$broadcast('eventYTServiceReady', {});
+	}
+	
+	/*
+	 *	broadcastTime()
+	 *	
+	 */
+	this.broadcastTime = function (time) {
+		$rootScope.$broadcast('eventTime', {
+			time: time
+		});
 	}
 	
 }]);

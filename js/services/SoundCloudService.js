@@ -1,6 +1,7 @@
 app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $rootScope) {
 	
 	var service = this;		// "Pointer" to this service for use in functions with new scope
+	var timeTracking = false;
 	
 	/*	listResults(data)
 	 *	Parses the data from a SoundCloud search and returns a dictionary with
@@ -14,7 +15,8 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 				title: data[i].title,
 				description: data[i].description,
 				thumbnail: data[i].artwork_url,
-				author: data[i].username
+				author: data[i].username,
+				duration: data[i].duration/1000
 			});
 		}
 		return results;
@@ -29,9 +31,48 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	
 		SC.stream('/tracks/'+id).then(function (sound) {
 			SC.sound = sound;
-			SC.sound.play();
+			service.playTrack();
 			SC.sound.on('finish', service.broadcastFinish);
 		});
+	};
+	
+	/*
+	 *	trackTime()
+	 *
+	 */
+	this.trackTime = function () {
+		if (service.timeTracking) {
+			service.broadcastTime(SC.sound.currentTime()/1000); // divide 1000 to get seconds
+			setTimeout(service.trackTime,200);
+		}
+	}
+	
+	/*
+	 *	getMaxTime()
+	 *	Gets the total duration of the track
+	 */
+	this.getMaxTime = function () {
+		return SC.sound.streamInfo.duration/1000;
+	}
+	
+	/*
+	 *	pauseTrack()
+	 *	Pauses the track
+	 */
+	this.pauseTrack = function () {
+		if (typeof SC.sound !== 'undefined')
+			SC.sound.pause();
+		service.timeTracking = false;
+	};
+	
+	/*
+	 *	playTrack()
+	 *	Plays the track
+	 */
+	this.playTrack = function () {
+		SC.sound.play();
+		service.timeTracking = true;
+		service.trackTime();
 	};
 	
 	/*
@@ -43,20 +84,14 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	};
 	
 	/*
-	 *	pauseTrack()
-	 *	Pauses the track
+	 *	broadcastTime()
+	 *	
 	 */
-	this.pauseTrack = function () {
-		if (typeof SC.sound !== 'undefined')
-			SC.sound.pause();
-	};
+	this.broadcastTime = function (time) {
+		$rootScope.$broadcast('eventTime', {
+			time: time
+		});
+	}
 	
-	/*
-	 *	playTrack()
-	 *	Plays the track
-	 */
-	this.playTrack = function () {
-		SC.sound.play();
-	};
 	
 }]);

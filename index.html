@@ -17,8 +17,8 @@
 		<div ng-controller="MainCtrl">
 			<h1>Queue It Up!</h1>
 			
-			<span id="current_track" ng-model="currentTrack">
-				{{currentTrack.title}} {{currentTrack.state}}
+			<span id="current_track" ng-show="currentTrack">
+				{{currentTrack.title}} {{currentTrack.state}} {{currentTrack.time}}/{{currentTrack.duration}}
 			</span>
 			
 			<form id="search" ng-submit="search(search_type)" ng-init="search_type='youtube'">
@@ -32,10 +32,11 @@
 				<div class="result_box" ng-repeat="item in results">
 					<img class="result_img" ng-src="{{item.thumbnail}}" align="top"/>
 					<span class="result_text">
-						<span class="result_title">{{item.title}}</span><br/>
+						<span class="result_title">{{item.title}}</span> 
+						<span class="result_duration">{{item.duration}}sec</span><br/>
 						<span class="result_author">{{item.author}}</span>
 						<p>
-							<button ng-click="$parent.addTrack(item.id,item.title,search_type)">Add to Queue</button>
+							<button ng-click="$parent.addTrack(item.id,item.title,search_type,item.duration)">Add to Queue</button>
 						</p>
 					</span>
 				</div>
