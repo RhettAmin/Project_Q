@@ -1,14 +1,14 @@
 app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $rootScope) {
 	
 	var service = this;		// "Pointer" to this service for use in functions with new scope
-	var timeTracking = false;
+	var interval;
 	
 	/*	listResults(data)
 	 *	Parses the data from a SoundCloud search and returns a dictionary with
 	 *	{id, title, description, thumbnail, author}
 	 */
 	this.listResults = function (data) {
-		results.length = 0;
+		var results = [];
 		for (var i=0; i<data.length; i++) {
 			results.push( {
 				id: data[i].id,
@@ -31,6 +31,7 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	
 		SC.stream('/tracks/'+id).then(function (sound) {
 			SC.sound = sound;
+			service.sound = sound;
 			service.playTrack();
 			SC.sound.on('finish', service.broadcastFinish);
 		});
@@ -41,10 +42,17 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	 *
 	 */
 	this.trackTime = function () {
-		if (service.timeTracking) {
+		service.interval = window.setInterval(function () {
 			service.broadcastTime(SC.sound.currentTime()/1000); // divide 1000 to get seconds
-			setTimeout(service.trackTime,200);
-		}
+		}, 420);
+	}
+	
+	/*
+	 *	stopTimer()
+	 *	Stops the time tracker
+	 */
+	this.stopTimer = function () {
+		clearInterval(service.interval);
 	}
 	
 	/*
@@ -62,7 +70,7 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	this.pauseTrack = function () {
 		if (typeof SC.sound !== 'undefined')
 			SC.sound.pause();
-		service.timeTracking = false;
+		service.stopTimer();
 	};
 	
 	/*
@@ -71,7 +79,6 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	 */
 	this.playTrack = function () {
 		SC.sound.play();
-		service.timeTracking = true;
 		service.trackTime();
 	};
 	
@@ -85,7 +92,7 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	
 	/*
 	 *	broadcastTime()
-	 *	
+	 *	Broadcasts the time event to the controller
 	 */
 	this.broadcastTime = function (time) {
 		$rootScope.$broadcast('eventTime', {

@@ -1,5 +1,11 @@
 app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudService) {
 	
+	$scope.results = [];		// each item: { id, title, description, thumbnail, author, duration }
+	$scope.playlist = [];		// each item: { id, title, votes, type, duration }
+	$scope.playHistory = [];	// each item: { id, title, type, duration }
+	$scope.currentTrack;		// singular:  { id, title, type, state, time, duration }
+	
+	
 	/*
 	 *	search()
 	 *	For Searching tracks
@@ -101,7 +107,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	$scope.addTrack = function (id, title, type, duration) {
 		
 		// Add the track to the playlist
-		playlist.push({
+		$scope.playlist.push({
 			id:id,
 			title:title,
 			votes:0,
@@ -111,10 +117,10 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		
 		// TODO: Visual feedback showing added to playlist will go here
 		
-		if (playlist.length == 1) {				// Start playing if its the only video in the list
-			$scope.playTrack(playlist[0].id, playlist[0].title, type, playlist[0].duration);
+		if ($scope.playlist.length == 1) {				// Start playing if its the only video in the list
+			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, type, $scope.playlist[0].duration);
 		}
-		$scope.updatePlaylist(playlist);		// Set playlist variable in YT service
+		//$scope.updatePlaylist(playlist);		// Set playlist variable in YT service
     };
 	
 	/*
@@ -137,23 +143,25 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Removes a video from the playlist and adds it to the play history
 	 */
 	$scope.removeTrack = function (id, type) {
-		for (var i=0; i<playlist.length; i++) {
-			if (playlist[i].id === id) {
-				playHistory.push({id:playlist[i].id,title:playlist[i].title,type:playlist[i].type,duration:playlist[i].duration});
-				playlist.splice(i,1);
+		for (var i=0; i<$scope.playlist.length; i++) {
+			if ($scope.playlist[i].id === id) {
+				$scope.playHistory.push({
+					id: $scope.playlist[i].id,
+					title: $scope.playlist[i].title,
+					type: $scope.playlist[i].type,
+					duration: $scope.playlist[i].duration
+				});
+				$scope.playlist.splice(i,1);
 				break;
 			}
 		}
 		
-		$scope.updatePlaylist(playlist);
-		$scope.playHistory = playHistory;
-		
 		var currentVidId = $scope.currentTrack.id;
 		console.log($scope.currentTrack.title);
 		
-		if (currentVidId === id && playlist.length > 0)	 // If currently playing video deleted
-			$scope.playTrack(playlist[0].id, playlist[0].title, playlist[0].type, playlist[0].duration); // Play next video
-		if (playlist.length <= 0) {
+		if (currentVidId === id && $scope.playlist.length > 0)	 // If currently playing video deleted
+			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, $scope.playlist[0].type, $scope.playlist[0].duration); // Play next video
+		if ($scope.playlist.length <= 0) {
 			YouTubeService.stopVideo();				//  Stop Video
 			SoundCloudService.pauseTrack();			//	Stop Track
 		}
@@ -165,14 +173,14 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Upvotes an item in the playlist
 	 */
 	$scope.upvote = function (id) {
-		for (var i=0; i<playlist.length; i++) {
-			if (playlist[i].id === id) {
-				playlist[i].votes += 1;
+		for (var i=0; i<$scope.playlist.length; i++) {
+			if ($scope.playlist[i].id === id) {
+				$scope.playlist[i].votes += 1;
 				break;
 			}
 		}
 		
-		$scope.updatePlaylist(playlist);
+		//$scope.updatePlaylist(playlist);
 	};
 	
 	/*
@@ -180,14 +188,14 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Downvotes an item in the playlist
 	 */
 	$scope.downvote = function (id) {
-		for (var i=0; i<playlist.length; i++) {
-			if (playlist[i].id === id) {
-				playlist[i].votes -= 1;
+		for (var i=0; i<$scope.playlist.length; i++) {
+			if ($scope.playlist[i].id === id) {
+				$scope.playlist[i].votes -= 1;
 				break;
 			}
 		}
 		
-		$scope.updatePlaylist(playlist);
+		//$scope.updatePlaylist(playlist);
 	};
 	
 	/*
@@ -195,7 +203,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 * Sends out updates to scope and each service to keep their playlists synchronized
 	 */
 	$scope.updatePlaylist = function (playlist) {
-		$scope.playlist = playlist;					// Set playlist variable in scope for html
+		//$scope.playlist = playlist;					// Set playlist variable in scope for html
 	}
 	
 	/*
@@ -269,7 +277,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Pops a track off the top of the playlist and plays the next track
 	 */
 	$scope.$on('eventYTFinish', function(event, data) {
-		console.log("YOUTUBE finish");
+		console.log("YouTube track finished");
         $scope.trackFinished();
     });
 	
@@ -278,7 +286,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Pops a track off the top of the playlist and plays the next track
 	 */
 	$scope.$on('eventSCFinish', function(event, data) {
-		console.log("SOUNDCLOUD finish");
+		console.log("SoundCloud track finished");
         $scope.trackFinished();
     });
 	
@@ -288,9 +296,9 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 */
 	$scope.trackFinished = function () {
 		$scope.removeTrack($scope.currentTrack.id);
-		if (playlist.length > 0) {
-			console.log(playlist[0].title + " finished playing.");
-			$scope.playTrack(playlist[0].id, playlist[0].title, playlist[0].type, playlist[0].duration);
+		if ($scope.playlist.length > 0) {
+			console.log($scope.playlist[0].title + " finished playing.");
+			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, $scope.playlist[0].type, $scope.playlist[0].duration);
 		}
 		else
 			$scope.updateCurrentTrack('','','','stopped',0,0);
@@ -312,6 +320,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	});
 	
 	$scope.$on('eventTime', function (event, data) {
+		//console.log(data.time);
 		$scope.updateCurrentTime(data.time);
 	});
 	

@@ -52,12 +52,21 @@
 			</div>
 			
 			<div id="playlist">
+				
+				<div ng-if="playHistory.length>0">Track History:</div>
+				<ul id="playHistory">
+					<li ng-repeat="item in playHistory">
+						{{item.title}} ({{item.duration}}s)
+					</li>
+				</ul>
+				
+				<div ng-if="playlist.length>0">Playlist:</div>
 				<ul>
 					<li ng-repeat="item in playlist">
 						{{item.title}} 
 						<button ng-click="$parent.upvote(item.id)">+</button> 
 						<button ng-click="$parent.downvote(item.id)">-</button> 
-						[{{item.votes }}]
+						[{{item.votes }}] ({{item.duration}}s)
 						<button ng-click="$parent.removeTrack(item.id,item.title)">x</button>
 						<!-- Note use of $parent because ng-repeat creates its own scope -->
 					</li>

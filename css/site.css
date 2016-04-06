@@ -55,6 +55,10 @@ body {
 	top: 250px;
 }
 
+#playHistory {
+	color: grey;
+}
+
 #yt_player {
 	display: none;
 }

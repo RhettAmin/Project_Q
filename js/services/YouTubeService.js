@@ -2,7 +2,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	
 	var service = this;		// "Pointer" to this service for use in functions with new scope
 	var youtube = null;		// Youtube's IFrame API object
-	var timeTracking = false;
+	var interval;
 	
 	/*
 	 *	listResults(data)
@@ -10,7 +10,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *	{id, title, description, thumbnail, author}
 	 */
 	this.listResults = function (data) {
-		results.length = 0;
+		var results = [];
 		for (var i=0; i<data.items.length; i++) {
 			results.push( {
 				id: data.items[i].id.videoId,
@@ -49,14 +49,13 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	function onYoutubeStateChange (event) {
 		if (event.data == YT.PlayerState.ENDED) {
-			service.timeTracking = false;
+			service.stopTimer();
 			service.broadcastFinish();	// Broadcast to controller that video finished
 		}
 		else if (event.data == YT.PlayerState.PAUSED) {
-			service.timeTracking = false;
+			service.stopTimer();
 		}
 		else if (event.data == YT.PlayerState.PLAYING) {
-			service.timeTracking = true;
 			service.trackTime();
 		}
 		$rootScope.$apply();
@@ -67,10 +66,17 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *
 	 */
 	this.trackTime = function () {
-		if (service.timeTracking) {
-			service.broadcastTime(youtube.getCurrentTime());
-			setTimeout(service.trackTime,200);
-		}
+		service.interval = window.setInterval(function () {
+			service.broadcastTime(youtube.getCurrentTime()); // divide 1000 to get seconds
+		}, 200);
+	}
+	
+	/*
+	 *	stopTimer()
+	 *	Stops the time tracker
+	 */
+	this.stopTimer = function () {
+		clearInterval(service.interval);
 	}
 	
 	/*
@@ -117,6 +123,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *	pauseVideo()
 	 */
 	this.pauseVideo = function () {
+		service.stopTimer();
 		youtube.pauseVideo();
 	}
 	
@@ -124,6 +131,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *	stopVideo()
 	 */
 	this.stopVideo = function () {
+		service.stopTimer();
 		youtube.stopVideo();
 	}
 	
@@ -145,16 +153,6 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	}
 	
 	/*
-	 *	broadcastPlaying()
-	 *	Broadcast video playing for controller
-	 */
-	this.broadcastPlaying = function () {
-		$rootScope.$broadcast('eventPlaying', {
-			time: 111//youtube.getCurrentTime()
-		});
-	}
-	
-	/*
 	 *	broadcastYTServiceReady()
 	 *	Broadcast event stating service is ready for controller
 	 */
@@ -164,7 +162,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	
 	/*
 	 *	broadcastTime()
-	 *	
+	 *	Broadcasts the time event to the controller
 	 */
 	this.broadcastTime = function (time) {
 		$rootScope.$broadcast('eventTime', {
