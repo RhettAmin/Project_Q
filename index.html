@@ -42,13 +42,15 @@
 				</div>
 			</div>
 			
-			<div id="player">
+			<div id="player" ng-show="currentTrack">
 				<div id="yt_player"><!-- Placeholder for YT video --></div>
 				<div id="sc_player"><!-- Placeholder for SC video --></div>
 				<button id="play" ng-click="btnPlay()">Play</button>
 				<button id="pause" ng-click="btnPause()">Pause</button>
 				<button id="next" ng-click="btnNext()">Next</button>
-				<button id="back*" ng-click="btnBack()">Back</button>
+				<button id="back" ng-click="btnBack()">Back</button>
+				<input id="position" type="range" min="0" step="0.5" max="{{currentTrack.duration}}" value="0" 
+					ng-model="currentTrack.time" ng-mousedown="stopTimer()" ng-mouseup="setPosition()">
 			</div>
 			
 			<div id="playlist">

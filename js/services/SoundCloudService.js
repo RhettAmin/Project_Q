@@ -33,8 +33,10 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 			SC.sound = sound;
 			service.sound = sound;
 			service.playTrack();
-			SC.sound.on('finish', service.broadcastFinish);
+			SC.sound.on('finish', service.broadcastFinish);	 // Listener for track finish
+			SC.sound.on('seeked', service.broadcastPlaying); // Listener for renabling position slider
 		});
+		service.broadcastPlaying();
 	};
 	
 	/*
@@ -42,9 +44,12 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	 *
 	 */
 	this.trackTime = function () {
-		service.interval = window.setInterval(function () {
-			service.broadcastTime(SC.sound.currentTime()/1000); // divide 1000 to get seconds
-		}, 420);
+		if (service.interval === null) {
+			// console.log("SoundCloud track timer started *");	// DEBUG for timer
+			service.interval = window.setInterval(function () {
+				service.broadcastTime(SC.sound.currentTime()/1000); // divide 1000 to get seconds
+			}, 200);
+		}
 	}
 	
 	/*
@@ -52,7 +57,9 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	 *	Stops the time tracker
 	 */
 	this.stopTimer = function () {
+		// console.log("SoundCloud track timer ended");		// DEBUG for timer
 		clearInterval(service.interval);
+		service.interval = null;
 	}
 	
 	/*
@@ -83,12 +90,30 @@ app.service('SoundCloudService', ['$window', '$rootScope', function ($window, $r
 	};
 	
 	/*
+	 *	setPosition(time)
+	 *	Changes the position of the track
+	 */
+	this.setPosition = function (time) {
+		if (typeof SC.sound !== 'undefined')
+			SC.sound.seek(time*1000);
+		service.trackTime();
+	};	
+	
+	/*
 	 *	broadcastFinish()
 	 *	Triggers when the track is finished, sends out broadcast to controller
 	 */
 	this.broadcastFinish = function () {
 		$rootScope.$broadcast('eventSCFinish', {});
 	};
+	
+	/*
+	 *	broadcastPlaying()
+	 *	Broadcast playing of video for controller
+	 */
+	this.broadcastPlaying = function () {
+		$rootScope.$broadcast('eventPlaying', {});
+	}
 	
 	/*
 	 *	broadcastTime()

@@ -2,7 +2,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	
 	var service = this;		// "Pointer" to this service for use in functions with new scope
 	var youtube = null;		// Youtube's IFrame API object
-	var interval;
+	var interval = null;
 	
 	/*
 	 *	listResults(data)
@@ -56,7 +56,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 			service.stopTimer();
 		}
 		else if (event.data == YT.PlayerState.PLAYING) {
-			service.trackTime();
+			service.broadcastPlaying();	// Required for renabling position slider
 		}
 		$rootScope.$apply();
 	}
@@ -66,9 +66,12 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *
 	 */
 	this.trackTime = function () {
-		service.interval = window.setInterval(function () {
-			service.broadcastTime(youtube.getCurrentTime()); // divide 1000 to get seconds
-		}, 200);
+		if (service.interval === null) {
+			// console.log("YouTube track timer started *"); // DEBUG for timer
+			service.interval = window.setInterval(function () {
+				service.broadcastTime(youtube.getCurrentTime()); // divide 1000 to get seconds
+			}, 200);
+		}
 	}
 	
 	/*
@@ -76,7 +79,9 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 *	Stops the time tracker
 	 */
 	this.stopTimer = function () {
+		// console.log("YouTube track timer ended");	// DEBUG for timer
 		clearInterval(service.interval);
+		service.interval = null;
 	}
 	
 	/*
@@ -117,6 +122,7 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	this.playVideo = function () {
 		youtube.playVideo();
+		service.trackTime();
 	}
 	
 	/*
@@ -141,8 +147,20 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	this.launchPlayer = function (id, title) {
 		youtube.loadVideoById(id);
+		service.trackTime();
 		return youtube;
 	}
+	
+	/*
+	 *	setPosition(time)
+	 *	Changes the position of the track
+	 */
+	this.setPosition = function (time) {
+		if (typeof youtube !== 'undefined') {
+			youtube.seekTo(time, true);
+			service.trackTime();
+		}
+	};
 	
 	/*
 	 *	broadcastFinish()
@@ -150,6 +168,14 @@ app.service('YouTubeService', ['$window', '$rootScope', function ($window, $root
 	 */
 	this.broadcastFinish = function () {
 		$rootScope.$broadcast('eventYTFinish', {});
+	}
+	
+	/*
+	 *	broadcastPlaying()
+	 *	Broadcast playing of video for controller
+	 */
+	this.broadcastPlaying = function () {
+		$rootScope.$broadcast('eventPlaying', {});
 	}
 	
 	/*

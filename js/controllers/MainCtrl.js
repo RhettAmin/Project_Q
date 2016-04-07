@@ -5,10 +5,11 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	$scope.playHistory = [];	// each item: { id, title, type, duration }
 	$scope.currentTrack;		// singular:  { id, title, type, state, time, duration }
 	
+	var ctrl = this;
 	
 	/*
 	 *	search()
-	 *	For Searching tracks
+	 *	For Searching tracks. Exposed to the scope.
 	 */
 	$scope.search = function (type) {
 		
@@ -26,7 +27,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 				}
 			})
 			.success( function (data) {		// On success
-				data = $scope.getYTVideoDurations(data); // Will also handle YouTubeService.listResults(data)
+				data = ctrl.getYTVideoDurations(data); // Will also handle YouTubeService.listResults(data)
 			})
 			.error( function (err) {
 				console.log(err);
@@ -50,7 +51,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	>> Assists the YouTube portion of search() function above
 	 *	YouTube's search API won't return durations of videos so make another call with video IDs to the video API
 	 */
-	$scope.getYTVideoDurations = function (data) {
+	this.getYTVideoDurations = function (data) {
 		var ids = "";
 		for (var i=0; i<data.items.length; i++) {	// Compile comma seperated list of ids for query
 			ids = ids + data.items[i].id.videoId + ",";
@@ -68,7 +69,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 			for (var i=0; i<data.items.length; i++) {
 				for (var j=0; j<data2.items.length; j++) {
 					if (data.items[i].id.videoId == data2.items[j].id) {
-						var formattedTime = convertISO8601ToSeconds(data2.items[j].contentDetails.duration);
+						var formattedTime = ctrl.convertISO8601ToSeconds(data2.items[j].contentDetails.duration);
 						data.items[i]['duration'] = formattedTime;
 						break;
 					}
@@ -86,7 +87,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	convertISO8601ToSeconds(input)
 	 *	Converts YouTube's ISO-8601 time format into seconds
 	 */
-	function convertISO8601ToSeconds(input) {
+	this.convertISO8601ToSeconds = function (input) {
 		var reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
 		var hours = 0, minutes = 0, seconds = 0, totalseconds;
 
@@ -120,7 +121,6 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		if ($scope.playlist.length == 1) {				// Start playing if its the only video in the list
 			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, type, $scope.playlist[0].duration);
 		}
-		//$scope.updatePlaylist(playlist);		// Set playlist variable in YT service
     };
 	
 	/*
@@ -135,7 +135,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 			YouTubeService.launchPlayer(id, title);
 		else if (type === "soundcloud")
 			SoundCloudService.launchPlayer(id, title);
-		$scope.updateCurrentTrack(id, title, type, 'playing', 0, duration);
+		ctrl.updateCurrentTrack(id, title, type, 'playing', 0, duration);
     };
 	
 	/*
@@ -156,14 +156,14 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 			}
 		}
 		
-		var currentVidId = $scope.currentTrack.id;
-		console.log($scope.currentTrack.title);
-		
+		var currentVidId = $scope.currentTrack.id;		
 		if (currentVidId === id && $scope.playlist.length > 0)	 // If currently playing video deleted
 			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, $scope.playlist[0].type, $scope.playlist[0].duration); // Play next video
-		if ($scope.playlist.length <= 0) {
+		if ($scope.playlist.length == 0) {
 			YouTubeService.stopVideo();				//  Stop Video
 			SoundCloudService.pauseTrack();			//	Stop Track
+			$scope.stopTimer();
+			delete $scope.currentTrack;
 		}
 		
 	};
@@ -179,8 +179,6 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 				break;
 			}
 		}
-		
-		//$scope.updatePlaylist(playlist);
 	};
 	
 	/*
@@ -194,23 +192,13 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 				break;
 			}
 		}
-		
-		//$scope.updatePlaylist(playlist);
 	};
-	
-	/*
-	 * updatePlaylist(playlist)
-	 * Sends out updates to scope and each service to keep their playlists synchronized
-	 */
-	$scope.updatePlaylist = function (playlist) {
-		//$scope.playlist = playlist;					// Set playlist variable in scope for html
-	}
 	
 	/*
 	 *	updateCurrentTrack(id, title, type)
 	 *	Updates the current track values in each service and main scope
 	 */
-	$scope.updateCurrentTrack = function (id, title, type, state, time, duration) {
+	this.updateCurrentTrack = function (id, title, type, state, time, duration) {
 		$scope.currentTrack = { id:id, title:title, type:type, state:state, time:time, duration:duration };
 	};
 	
@@ -218,7 +206,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	updateCurrentState(state)
 	 *	Updates the current track's state (playing, stopped, or paused)
 	 */
-	$scope.updateCurrentState = function (state) {
+	ctrl.updateCurrentState = function (state) {
 		$scope.currentTrack.state = state;
 	};
 	
@@ -226,7 +214,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	updateCurrentTime(time)
 	 *	Updates the current track's position
 	 */
-	 $scope.updateCurrentTime = function (time) {
+	 this.updateCurrentTime = function (time) {
 		$scope.currentTrack.time = time;
 		$scope.$apply();
 	 }
@@ -243,7 +231,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		else if (type === "soundcloud") {
 			SoundCloudService.playTrack();
 		}
-		$scope.updateCurrentState('playing');
+		ctrl.updateCurrentState('playing');
 	}
 	
 	/*
@@ -258,7 +246,7 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		else if (type === "soundcloud") {
 			SoundCloudService.pauseTrack();
 		}
-		$scope.updateCurrentState('paused');
+		ctrl.updateCurrentState('paused');
 	}
 	
 	/*
@@ -269,6 +257,57 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		$scope.removeTrack($scope.currentTrack.id);
 	}
 	
+	/*
+	 *	btnBack()
+	 *	Button function that goes to the next song
+	 */
+	$scope.btnBack = function () {
+		
+		if ($scope.playHistory.length > 0) {	// Can't go back if empty history
+			var lastTrack = $scope.playHistory[$scope.playHistory.length-1];
+			$scope.playlist.unshift({	// Add track to start of playlist
+				id: lastTrack.id,
+				title: lastTrack.title,
+				votes:0,
+				type: lastTrack.type,
+				duration: lastTrack.duration
+			});
+			$scope.playHistory.pop();	// Remove track from playHistory
+			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, $scope.playlist[0].type, $scope.playlist[0].duration);	// Play track
+		}
+	}
+	
+	/*
+	 *	stopTimer()
+	 *	Stops tracking time for all services, for the time slider mousedown event
+	 */
+	$scope.stopTimer = function () {
+		YouTubeService.stopTimer();
+		SoundCloudService.stopTimer();
+	}
+	
+	/*
+	 *	startTimer()
+	 *	Starts tracking time for the current track
+	 */
+	$scope.startTimer = function () {
+		if ($scope.currentTrack.type === 'youtube')
+			YouTubeService.trackTime();
+		else if ($scope.currentTrack.type === 'soundcloud')
+			SoundCloudService.trackTime();
+	}
+	
+	/*
+	 *	setPosition()
+	 *	Sets the 
+	 */
+	$scope.setPosition = function () {
+		if ($scope.currentTrack.type === 'youtube')
+			YouTubeService.setPosition($scope.currentTrack.time);
+		else if ($scope.currentTrack.type === 'soundcloud')
+			SoundCloudService.setPosition($scope.currentTrack.time);
+		document.getElementById('position').setAttribute('disabled',true);	// Disable slider until 'playing' event starts
+	}
 	
 	/****** Event listeners ******/
 	
@@ -295,13 +334,14 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	 *	Called when track finished
 	 */
 	$scope.trackFinished = function () {
+		$scope.stopTimer();
 		$scope.removeTrack($scope.currentTrack.id);
 		if ($scope.playlist.length > 0) {
 			console.log($scope.playlist[0].title + " finished playing.");
 			$scope.playTrack($scope.playlist[0].id, $scope.playlist[0].title, $scope.playlist[0].type, $scope.playlist[0].duration);
 		}
 		else
-			$scope.updateCurrentTrack('','','','stopped',0,0);
+			delete $scope.currentTrack;
 	};
 	
 	/*
@@ -314,14 +354,20 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 		document.getElementById('query').setAttribute('placeholder','Search for a track');
     });
 	
-	
+	/*
+	 *	Listener for broadcast from service stating a track has started playing
+	 *	Enables the search box
+	 */
 	$scope.$on('eventPlaying', function (event, data) {
-		//console.log(data.time);
+		document.getElementById('position').removeAttribute('disabled');
 	});
 	
+	/*
+	 *	Listener for broadcast from service showing current time from track
+	 *	Enables the search box
+	 */
 	$scope.$on('eventTime', function (event, data) {
-		//console.log(data.time);
-		$scope.updateCurrentTime(data.time);
+		ctrl.updateCurrentTime(data.time);
 	});
 	
 });
