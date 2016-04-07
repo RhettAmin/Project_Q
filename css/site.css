@@ -43,16 +43,25 @@ body {
 	color: #444;
 }
 
+#footer {
+	width: 100%;
+	bottom: 0;
+	position: fixed;
+}
+
 #player {
-	position: absolute;
-	left: 420px;
-	top: 120px;
+	border-style: solid;
+	width: 50%;
+	margin: 0 auto;
+	background-image: url("../images/small_steps.png");
+    background-repeat: repeat-xy;
+	text-align: center;
 }
 
 #playlist {
 	position: absolute;
 	left: 420px;
-	top: 250px;
+	top: 100px;
 }
 
 #playHistory {

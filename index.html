@@ -17,10 +17,6 @@
 		<div ng-controller="MainCtrl">
 			<h1>Queue It Up!</h1>
 			
-			<span id="current_track" ng-show="currentTrack">
-				{{currentTrack.title}} {{currentTrack.state}} {{currentTrack.time}}/{{currentTrack.duration}}
-			</span>
-			
 			<form id="search" ng-submit="search(search_type)" ng-init="search_type='youtube'">
 				<input id="query" name="q" type="text" placeholder="Loading..." data-ng-model="query" disabled>
 				<input id="submit" type="image" src="images/search.png" alt="Search" disabled> <br/>
@@ -40,17 +36,6 @@
 						</p>
 					</span>
 				</div>
-			</div>
-			
-			<div id="player" ng-show="currentTrack">
-				<div id="yt_player"><!-- Placeholder for YT video --></div>
-				<div id="sc_player"><!-- Placeholder for SC video --></div>
-				<button id="play" ng-click="btnPlay()">Play</button>
-				<button id="pause" ng-click="btnPause()">Pause</button>
-				<button id="next" ng-click="btnNext()">Next</button>
-				<button id="back" ng-click="btnBack()">Back</button>
-				<input id="position" type="range" min="0" step="0.5" max="{{currentTrack.duration}}" value="0" 
-					ng-model="currentTrack.time" ng-mousedown="stopTimer()" ng-mouseup="setPosition()">
 			</div>
 			
 			<div id="playlist">
@@ -75,6 +60,22 @@
 				</ul>
 			</div>
 			
+			<div id="footer">
+				<div id="player" ng-show="currentTrack">
+				
+					<p id="track_info">{{currentTrack.title}} {{currentTrack.state}} ({{currentTrack.type}})</p>
+				
+					<div id="yt_player"><!-- Placeholder for YT video --></div>
+					<div id="sc_player"><!-- Placeholder for SC video --></div>
+					<button id="play" ng-click="btnPlay()">Play</button>
+					<button id="pause" ng-click="btnPause()">Pause</button>
+					<button id="next" ng-click="btnNext()">Next</button>
+					<button id="back" ng-click="btnBack()">Back</button>
+					<input id="position" type="range" min="0" step="0.5" max="{{currentTrack.duration}}" value="0" 
+						ng-model="currentTrack.time" ng-mousedown="stopTimer()" ng-mouseup="setPosition()">
+					<span id="track_time"> {{currentTrack.time}}/{{currentTrack.duration}}</span>
+				</div>
+			</div>
 		</div>		
 
 		<!-- Vendor libraries -->
