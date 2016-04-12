@@ -12,7 +12,7 @@ body {
 /* Title bar */
 #title_bar {
 	position: fixed;
-	width: 60%;
+	width: 100%;
 	height: 70px;
 	vertical-align: top;
 }
@@ -20,6 +20,7 @@ body {
 #title_bar h1 {
 	float: left;
 	width: 40%;
+	font-size: 28px;
 }
 
 #sub_title {
@@ -27,7 +28,7 @@ body {
   left: 0;
   bottom: 0;
   padding: 10px;
-  color: #ff5555;
+  color: #5555ff;
 }
 
 #title_bar #search_box {
@@ -59,7 +60,7 @@ body {
 /* Search results */
 #search_results {
 	position: fixed;
-	width: 60%;
+	width: 99.5%;
 	top: 70px;
 	height: calc(100% - 72px);
 	height: -webkit-calc(100% - 72px);	/* webkit */
@@ -157,8 +158,6 @@ body {
 
 #player {
 	border-style: solid;
-	border-width: 1px;
-	border-color: #bbb;
 	width: 50%;
 	margin: 0 auto;
 	background-image: url("../images/small_steps.png");
@@ -169,45 +168,17 @@ body {
 /* Playlist */
 #playlist {
 	position: fixed;
+	left: 420px;
+	top: 100px;
 	border-style: solid;
-	border-width: 1px;
-	border-color: #bbb;
-	width: calc(40% - 3px);
-	width: -webkit-calc(40% - 3px);	/* webkit */
-	width: -o-calc(40% - 3px);		/* opera */
-	width: -moz-calc(40% - 3px);		/* mozilla */
-	right: 0;
-	top: 70px;
-	padding-right:2px;
 }
 
-#playlist_title, #track_history_title {
-	width: 100%;
-	height: 25px;
-	background: rgba(50,50,50,0.5);
-	text-align: center;
-	padding-bottom: 5px;
-	font-size: 20px;
-}
-
-.playlist_track, .history_track {
-  border-style: solid;
-  border-width: 1px;
-  border-color: #bbb;
-}
-
-.history_track {
+#history_track {
 	color: grey;
 }
 
 #yt_player {
 	display: none;
-}
-
-#pause, #play, #next, #back {
-	border-style: solid;
-	border-width: 1px;
-	border-color: #bbb;
 }
 
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {

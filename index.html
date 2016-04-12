@@ -2,12 +2,15 @@
 <html ng-app="QueueItUpApp">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1.0" />
 		<title>Queue It Up!</title>
 		
 		<!-- CSS links -->
-		<link rel="stylesheet" type="text/css" href="fonts/coolvetica.css">
-		<link rel="stylesheet" type="text/css" href="fonts/hack.css">
-		<link rel="stylesheet" type="text/css" href="css/site.css">
+		<link rel="stylesheet" href="fonts/coolvetica.css">
+		<link rel="stylesheet" href="fonts/hack.css">
+		<link rel="stylesheet" media="only screen and (min-width: 450px)" href="css/site.css">
+		<link rel="stylesheet" media="only screen and (max-width: 449px)" href="css/mobile.css">
+		<link rel="stylesheet" href="css/perfect-scrollbar.css">
 		<!-- External Scripts -->
 		<script src="https://connect.soundcloud.com/sdk/sdk-3.0.0.js"></script>
 		
@@ -15,62 +18,80 @@
 	<body ng-cloak>
 		
 		<div ng-controller="MainCtrl">
-			<h1>Queue It Up!</h1>
 			
-			<form id="search" ng-submit="search(search_type)" ng-init="search_type='youtube'">
-				<input id="query" name="q" type="text" placeholder="Loading..." data-ng-model="query" disabled>
-				<input id="submit" type="image" src="images/search.png" alt="Search" disabled> <br/>
-				<input type="radio" name="search_type" value="youtube" ng-model="search_type"> YouTube<br>
-				<input type="radio" name="search_type" value="soundcloud" ng-model="search_type"> SoundCloud<br>
-			</form>
 			
-			<div id="search_results">
+			<div id="title_bar">
+				<h1>Queue It Up!</h1>
+				<span id="sub_title">Host Console</span>
+				<form id="search_box" ng-submit="search(search_type)" ng-init="search_type='youtube'">
+					<input id="query" name="q" type="text" placeholder="Loading..." data-ng-model="query" disabled>
+					<input id="submit" type="image" src="images/search.png" alt="Search" disabled><br>
+					<select id="select_box" ng-model="search_type">
+						<option name="search_type" value="youtube"> YouTube</option>
+						<option name="search_type" value="soundcloud"> SoundCloud</option>
+					</select>
+				</form>
+			</div>
+			
+			<div id="search_results" ng-model="results">
 				<div class="result_box" ng-repeat="item in results">
-					<img class="result_img" ng-src="{{item.thumbnail}}" align="top"/>
+					<div class="result_img">
+						<div class="result_img_box">
+							<img class="result_img_src" ng-src="{{item.thumbnail}}"/>
+							<span class="result_duration">{{item.duration}}sec</span>
+						</div>
+					</div>
 					<span class="result_text">
-						<span class="result_title">{{item.title}}</span> 
-						<span class="result_duration">{{item.duration}}sec</span><br/>
-						<span class="result_author">{{item.author}}</span>
+						<div class="result_title">{{item.title}}</div>
+						<div class="result_author">{{item.author}}</div>
 						<p>
 							<button ng-click="$parent.addTrack(item.id,item.title,search_type,item.duration)">Add to Queue</button>
 						</p>
 					</span>
 				</div>
+				<div id="result_box_empty" ng-if="results.length==0">
+					<div class="result_box" ng-repeat="i in [0,1,2,3,4,5,6,7,8,9]"></div>
+				</div>
 			</div>
 			
-			<div id="playlist">
+			<div id="playlist" ng-if="playlist.length>0 || playHistory.length>0">
 				
-				<div ng-if="playHistory.length>0">Track History:</div>
-				<ul id="playHistory">
-					<li ng-repeat="item in playHistory">
-						{{item.title}} ({{item.duration}}s)
-					</li>
-				</ul>
+				<div id="track_history_title" ng-if="playHistory.length>0">Track History:</div>
+				<div class="history_track" ng-repeat="item in playHistory">
+					<img class="track_type" ng-src="images/icon_{{item.type}}.png"/>
+					<span class="track_title">{{item.title}} ({{item.duration}}s)</span>
+				</div>
 				
-				<div ng-if="playlist.length>0">Playlist:</div>
-				<ul>
-					<li ng-repeat="item in playlist">
-						{{item.title}} 
+				<div id="playlist_title" ng-if="playlist.length>0">Playlist:</div>
+				<div class="playlist_track" ng-repeat="item in playlist">
+					<img class="track_type" ng-src="images/icon_{{item.type}}.png"/>
+					<span class="track_title">{{item.title}}</span>
+					<span class="duration">({{item.duration}}s)</span>
+					<span class="vote_buttons">
 						<button ng-click="$parent.upvote(item.id)">+</button> 
-						<button ng-click="$parent.downvote(item.id)">-</button> 
-						[{{item.votes }}] ({{item.duration}}s)
-						<button ng-click="$parent.removeTrack(item.id,item.title)">x</button>
-						<!-- Note use of $parent because ng-repeat creates its own scope -->
-					</li>
-				</ul>
+						<button ng-click="$parent.downvote(item.id)">-</button>
+					</span>
+					<span class="votes">[{{item.votes }}]</span>
+					<button class="remove_button" ng-click="$parent.removeTrack(item.id,item.title)">x</button>
+					<!-- Note use of $parent because ng-repeat creates its own scope -->
+				</div>
 			</div>
 			
 			<div id="footer">
 				<div id="player" ng-show="currentTrack">
 				
-					<p id="track_info">{{currentTrack.title}} {{currentTrack.state}} ({{currentTrack.type}})</p>
+					<p id="track_info">
+						{{currentTrack.title}} {{currentTrack.state}} 
+						<img ng-src="images/icon_{{currentTrack.type}}.png"/>
+					</p>
 				
 					<div id="yt_player"><!-- Placeholder for YT video --></div>
 					<div id="sc_player"><!-- Placeholder for SC video --></div>
-					<button id="play" ng-click="btnPlay()">Play</button>
-					<button id="pause" ng-click="btnPause()">Pause</button>
-					<button id="next" ng-click="btnNext()">Next</button>
-					<button id="back" ng-click="btnBack()">Back</button>
+					<input id="back" type="image" src="images/prev.png" ng-click="btnBack()">&nbsp;&nbsp;
+					<input id="play" type="image" src="images/play.png" ng-click="btnPlay()">&nbsp;&nbsp;
+					<input id="pause" type="image" src="images/pause.png" ng-click="btnPause()">&nbsp;&nbsp;
+					<input id="next" type="image" src="images/next.png" ng-click="btnNext()">
+					
 					<input id="position" type="range" min="0" step="0.5" max="{{currentTrack.duration}}" value="0" 
 						ng-model="currentTrack.time" ng-mousedown="stopTimer()" ng-mouseup="setPosition()">
 					<span id="track_time"> {{currentTrack.time}}/{{currentTrack.duration}}</span>
@@ -83,6 +104,7 @@
 		<script src="lib/angular.js"></script>
 		<script src="lib/angular-route.js"></script>
 		<script src="lib/angular-sanitize.js"></script>
+		<script src="lib/perfect-scrollbar.jquery.min.js"></script>
 		<!-- Application Files -->
 		<script src="js/app.js"></script>
 		<script src="js/controllers/MainCtrl.js"></script>

@@ -12,4 +12,6 @@ app.run(function () {
 	// Initialize Soundcloud JS API
 	SC.initialize({ client_id: 'cf5e9b27dc6da1f746c13c67a8bca3d0' });
 	
+	// Load perfect scrollbar
+	$('#search_results').perfectScrollbar();
 });
