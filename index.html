@@ -17,12 +17,18 @@
 	</head>
 	<body ng-cloak>
 		
-		<div ng-controller="MainCtrl">
+		<div id="main_wrapper" ng-controller="MainCtrl">
 			
+			<!-- Title Bar -->
+			<div id="title_wrapper">
+				<div id="title_bar">
+					<h1>Queue It Up!</h1>
+					<span id="sub_title">&lt;Host Console&gt;</span>
+				</div>
+			</div>
 			
-			<div id="title_bar">
-				<h1>Queue It Up!</h1>
-				<span id="sub_title">Host Console</span>
+			<!-- Search Results -->
+			<div id="search_wrapper">
 				<form id="search_box" ng-submit="search(search_type)" ng-init="search_type='youtube'">
 					<input id="query" name="q" type="text" placeholder="Loading..." data-ng-model="query" disabled>
 					<input id="submit" type="image" src="images/search.png" alt="Search" disabled><br>
@@ -31,31 +37,31 @@
 						<option name="search_type" value="soundcloud"> SoundCloud</option>
 					</select>
 				</form>
-			</div>
-			
-			<div id="search_results" ng-model="results">
-				<div class="result_box" ng-repeat="item in results">
-					<div class="result_img">
-						<div class="result_img_box">
-							<img class="result_img_src" ng-src="{{item.thumbnail}}"/>
-							<span class="result_duration">{{item.duration}}sec</span>
+				<div id="search_results" ng-model="results">
+					<div class="result_box" ng-repeat="item in results">
+						<div class="result_img">
+							<div class="result_img_box">
+								<img class="result_img_src" ng-src="{{item.thumbnail}}"/>
+								<span class="result_duration">{{item.duration}}sec</span>
+							</div>
 						</div>
+						<span class="result_text">
+							<div class="result_title">{{item.title}}</div>
+							<div class="result_author">{{item.author}}</div>
+							<p>
+								<button ng-click="$parent.addTrack(item.id,item.title,search_type,item.duration)">Add to Queue</button>
+							</p>
+						</span>
 					</div>
-					<span class="result_text">
-						<div class="result_title">{{item.title}}</div>
-						<div class="result_author">{{item.author}}</div>
-						<p>
-							<button ng-click="$parent.addTrack(item.id,item.title,search_type,item.duration)">Add to Queue</button>
-						</p>
-					</span>
-				</div>
-				<div id="result_box_empty" ng-if="results.length==0">
-					<div class="result_box" ng-repeat="i in [0,1,2,3,4,5,6,7,8,9]"></div>
+					<div id="result_box_empty" ng-if="results.length==0">
+						<div class="result_box" ng-repeat="i in [0,1,2,3,4,5,6,7,8,9]"></div>
+					</div>
 				</div>
 			</div>
 			
-			<div id="playlist" ng-if="playlist.length>0 || playHistory.length>0">
-				
+			<!-- Playlist -->
+			<div id="playlist">
+<!-- 			<div id="playlist" ng-if="playlist.length>0 || playHistory.length>0"> -->				
 				<div id="track_history_title" ng-if="playHistory.length>0">Track History:</div>
 				<div class="history_track" ng-repeat="item in playHistory">
 					<img class="track_type" ng-src="images/icon_{{item.type}}.png"/>
@@ -74,11 +80,12 @@
 					<span class="votes">[{{item.votes }}]</span>
 					<button class="remove_button" ng-click="$parent.removeTrack(item.id,item.title)">x</button>
 					<!-- Note use of $parent because ng-repeat creates its own scope -->
-				</div>
+ 				</div>
 			</div>
 			
-			<div id="footer">
-				<div id="player" ng-show="currentTrack">
+			<!-- Music Player -->
+			<div id="player_wrapper">
+				<div id="player">
 				
 					<p id="track_info">
 						{{currentTrack.title}} {{currentTrack.state}} 
@@ -87,14 +94,16 @@
 				
 					<div id="yt_player"><!-- Placeholder for YT video --></div>
 					<div id="sc_player"><!-- Placeholder for SC video --></div>
-					<input id="back" type="image" src="images/prev.png" ng-click="btnBack()">&nbsp;&nbsp;
-					<input id="play" type="image" src="images/play.png" ng-click="btnPlay()">&nbsp;&nbsp;
-					<input id="pause" type="image" src="images/pause.png" ng-click="btnPause()">&nbsp;&nbsp;
-					<input id="next" type="image" src="images/next.png" ng-click="btnNext()">
+					<div id="ctrl_wrapper">
+						<div id="back_wrapper"><input id="back" type="image" src="images/prev.png" ng-click="btnBack()"></div>
+						<div id="play_wrapper"><input id="play" type="image" src="images/play.png" ng-click="btnPlay()"></div>
+						<div id="pause_wrapper"><input id="pause" type="image" src="images/pause.png" ng-click="btnPause()"></div>
+						<div id="next_wrapper"><input id="next" type="image" src="images/next.png" ng-click="btnNext()"></div>
+					</div>
 					
 					<input id="position" type="range" min="0" step="0.5" max="{{currentTrack.duration}}" value="0" 
-						ng-model="currentTrack.time" ng-mousedown="stopTimer()" ng-mouseup="setPosition()">
-					<span id="track_time"> {{currentTrack.time}}/{{currentTrack.duration}}</span>
+						ng-model="currentTrack.time" ng-mousedown="stopTimer()" ng-mouseup="setPosition()" disabled="true">
+					<span id="track_time" ng-show="currentTrack.time"> {{convertSecondsToDisplayTime(currentTrack.time)}}/{{convertSecondsToDisplayTime(currentTrack.duration)}}</span>
 				</div>
 			</div>
 		</div>		

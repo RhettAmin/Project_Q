@@ -102,6 +102,18 @@ app.controller('MainCtrl', function ($scope, $http, YouTubeService, SoundCloudSe
 	}
 	
 	/*
+	 * 	convertSecondsToDisplayTime(input)
+	 * 	Converts seconds into MM:SS for proper displaying of time
+	 */
+	$scope.convertSecondsToDisplayTime = function (input) {
+		var minutes = Math.floor(input / 60);
+		var seconds = Math.floor(input - minutes * 60);
+		
+		var result = (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+		return result;
+	}
+	
+	/*
 	 *	addTrack(id, title, type)
 	 *	Adds a track to the playlist
 	 */

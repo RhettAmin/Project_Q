@@ -1,0 +1,215 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {	
+    background-image: url("../images/sayagata-400px.png");
+    background-repeat: repeat-xy;
+	font-family: Coolvetica, Tahoma, serif;
+}
+
+/* Title bar */
+#title_bar {
+	position: fixed;
+	width: 60%;
+	height: 70px;
+	vertical-align: top;
+}
+
+#title_bar h1 {
+	float: left;
+	width: 40%;
+}
+
+#sub_title {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 10px;
+  color: #ff5555;
+}
+
+#title_bar #search_box {
+	float: right;
+	width: 60%;
+	margin-top: 5px;
+}
+
+#query {
+	float: left;
+	width: calc(100% - 55px);
+	width: -webkit-calc(100% - 55px);	/* webkit */
+	width: -o-calc(100% - 55px);		/* opera */
+	width: -moz-calc(100% - 55px);		/* mozilla */
+	padding: 9px;
+	border: none;
+	border-bottom: solid 2px #c9c9c9;
+	transition: border 0.3s;
+}
+
+#query:focus, #query.focus {
+  border-bottom: solid 2px #969696;
+}
+
+#submit {
+	border-bottom: solid 2px #c9c9c9;
+}
+
+/* Search results */
+#search_results {
+	position: fixed;
+	width: 60%;
+	top: 70px;
+	height: calc(100% - 72px);
+	height: -webkit-calc(100% - 72px);	/* webkit */
+	height: -o-calc(100% - 72px);		/* opera */
+	height: -moz-calc(100% - 72px);		/* mozilla */
+	font-family: Hack, Tahoma, serif;
+	font-size: 11px;
+	overflow-y: scroll;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #bbb;
+	
+}
+
+.result_box {
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px;
+	margin-bottom: -1px;
+	background: rgba(255,255,255,0.2);
+	height: 100px;
+	padding: 1px;
+	position: relative;
+}
+
+.result_img {
+	width: 120px;  /* bit larger than max thumbnail */
+	height: 100%;
+	overflow: hide;
+	background: white;
+	float: left;
+}
+
+.result_img_box {
+	position: relative;
+	text-align: center;
+	overflow: hidden;
+	width: 120px;
+	height: 100%;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px;
+}
+
+.result_img_src {
+	height: 100%;
+}
+
+.result_box .result_text {
+	display: block;
+	float: right;
+	width: calc(100% - 140px);
+	width: -webkit-calc(100% - 140px);	/* webkit */
+	width: -o-calc(100% - 140px);		/* opera */
+	width: -moz-calc(100% - 140px);		/* mozilla */
+}
+
+.result_box a {
+	text-decoration: none;
+}
+
+.result_box .result_text .result_title {
+	float: right;
+	width: 100%;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px;
+	background-color: rgba(0,0,0,0.1);
+	font-size: 12px;
+	font-weight: normal;
+	color: #000;
+	text-align: center;
+}
+
+.result_box .result_text .result_author {
+	color: #444;
+}
+
+.result_duration {
+  position: absolute;
+  z-index: 10;
+  bottom: 0;
+  right: 0;
+  background: rgba(0,0,0,0.5);;
+  color: white;
+  padding: 2px;
+}
+
+/* Player */
+#footer {
+	width: 100%;
+	bottom: 0;
+	position: fixed;
+}
+
+#player {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #bbb;
+	width: 50%;
+	margin: 0 auto;
+	background-image: url("../images/small_steps.png");
+    background-repeat: repeat-xy;
+	text-align: center;
+}
+
+/* Playlist */
+#playlist {
+	position: fixed;
+	border-style: solid;
+	border-width: 1px;
+	border-color: #bbb;
+	width: calc(40% - 3px);
+	width: -webkit-calc(40% - 3px);	/* webkit */
+	width: -o-calc(40% - 3px);		/* opera */
+	width: -moz-calc(40% - 3px);		/* mozilla */
+	right: 0;
+	top: 70px;
+	padding-right:2px;
+}
+
+#playlist_title, #track_history_title {
+	width: 100%;
+	height: 25px;
+	background: rgba(50,50,50,0.5);
+	text-align: center;
+	padding-bottom: 5px;
+	font-size: 20px;
+}
+
+.playlist_track, .history_track {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #bbb;
+}
+
+.history_track {
+	color: grey;
+}
+
+#yt_player {
+	display: none;
+}
+
+#pause, #play, #next, #back {
+	border-style: solid;
+	border-width: 1px;
+	border-color: #bbb;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
